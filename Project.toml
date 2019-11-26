@@ -1,0 +1,25 @@
+name = "SimpleIntegralEquations"
+uuid = "428acaf8-ea14-4ac2-ae6b-d202e96a132b"
+authors = ["Daan <daan.huybrechs@cs.kuleuven.be>"]
+version = "0.1.0"
+
+[deps]
+BasisFunctions = "4343a256-5453-507d-8aad-01a9d7189916"
+CardinalBSplines = "87d49508-7ad8-11e8-0eda-cb6920b58870"
+CompactTranslatesDict = "455b6770-8cd4-11e8-0457-dd6f5558b097"
+DomainIntegrals = "cc6bae93-f070-4015-88fd-838f9505a86c"
+DomainSets = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
+FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
+GridArrays = "356ae075-8bc9-5ef9-a342-46c9ba26438c"
+HCubature = "19dc6840-f33b-545b-b366-655c7e3ffd49"
+IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+
+[compat]
+
+[extras]
+
+[targets]
