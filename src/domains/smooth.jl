@@ -51,6 +51,8 @@ end
 
 Ellipse() = Ellipse{Float64}()
 
+Ellipse(center::SVector{2,T}, radius::SVector{2,T}) where {T} = Ellipse{T}(center, radius)
+
 Ellipse(x, y, radius1, radius2) = Ellipse(SVector(x, y), SVector(radius1, radius2))
 
 indomain(x, d::Ellipse) = ((x[1]-d.center[1])/d.radius[1])^2 + ((x[2]-d.center[2])/d.radius[2])^2 ≈ 1
@@ -60,14 +62,12 @@ indomain(x, d::Ellipse) = ((x[1]-d.center[1])/d.radius[1])^2 + ((x[2]-d.center[2
 Smooth parameterization of an ellipse, mapping from `[0,1)]`.
 """
 struct EllipseMap{S,T} <: Parameterization{S,T}
-    x   ::  T       # x-coordinate of center
-    y   ::  T       # y-coordinate of center
-    radius1 ::  T   # horizontal radius
-    radius2 ::  T   # vertical radius
+    center  ::  SVector{2,S}        # center of the ellipse
+    radius  ::  SVector{2,S}        # (radius1,radius2)
 end
 
 hasparameterization(d::Ellipse) = true
-parameterization(d::Ellipse) = EllipseMap{subeltype(d),eltype(d)}(d.center, d.radius)
+parameterization(d::Ellipse{T}) where {T} = EllipseMap{T,SVector{2,T}}(d.center, d.radius)
 
 domain(m::EllipseMap{S}) where {S} = Interval{:closed,:open,S}(0, 1)
 image(m::EllipseMap{S}) where {S} = Ellipse{S}(m.center, m.radius)
@@ -79,7 +79,7 @@ end
 
 function gradient(m::EllipseMap, t)
     b = 2*convert(domaintype(m), pi)
-    SVector(-m.radius1 * b * sin(b*t),  m.radius2 * b * cos(b*t))
+    SVector(-m.radius[1] * b * sin(b*t),  m.radius[2] * b * cos(b*t))
 end
 
 # # function normal{T}(b::Ellipse{T}, t)

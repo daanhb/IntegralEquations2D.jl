@@ -39,9 +39,11 @@ function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, s
     DomainIntegrals.integral(integrand, domain1 × domain2, sing)
 end
 
-doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
-        domain1::PeriodicSubinterval, domain2::PeriodicSubinterval) =
-    sum(doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing, d1, d2) for d1 in elements(domain1), d2 in elements(domain2))
+function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
+        domain1::PeriodicSubinterval, domain2::PeriodicSubinterval)
+    sum(doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing, d1, d2)
+            for d1 in elements(domain1), d2 in elements(domain2))
+end
 
 
 
@@ -179,7 +181,7 @@ projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing::NoSingularity, doma
 projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain::AbstractInterval) =
     projectionintegral(QuadAdaptive(), f, dict, idx, measure, sing, domain)
 
-function projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain::PeriodicSubinterval)
+function projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing::NoSingularity, domain::PeriodicSubinterval)
     if numelements(domain) == 1
         z = projectionintegral(qs, f, dict, idx, measure, sing, element(domain,1))
     else

@@ -1,18 +1,18 @@
 
 "An integral operator defined by a kernel function of two variables."
-struct KernelIntOp{S,T,K<:Kernel{S,T}} <: IntegralOperator{S,T}
+struct KernelIntegralOperator{S,T,K<:Kernel{S,T}} <: IntegralOperator{S,T}
     kernel  ::  K
     domain  ::  Domain{S}
 end
 
-kernel(op::KernelIntOp) = op.kernel
-domain(op::KernelIntOp) = op.domain
+kernel(op::KernelIntegralOperator) = op.kernel
+domain(op::KernelIntegralOperator) = op.domain
 
-eval_kernel(op::KernelIntOp, x, y) = eval_kernel(op.kernel, x, y)
+eval_kernel(op::KernelIntegralOperator, x, y) = eval_kernel(op.kernel, x, y)
 
-measure(op::KernelIntOp{S}) where {S} = BasisFunctions.WholeLebesgueMeasure{S}()
+measure(op::KernelIntegralOperator{S}) where {S} = BasisFunctions.WholeLebesgueMeasure{S}()
 
-singularity(op::KernelIntOp) = singularity(kernel(op))
+singularity(op::KernelIntegralOperator) = singularity(kernel(op))
 
 
 struct ParameterizationMeasure{P,S,T} <: BasisFunctions.Measure{S}
@@ -24,42 +24,42 @@ BasisFunctions.support(p::ParameterizationMeasure) = domain(p.param)
 
 
 "A boundary integral operator with a parameterized boundary."
-struct BoundaryIntOp{S,T,P,K<:Kernel{S,T}} <: IntegralOperator{S,T}
+struct BoundaryIntegralOperator{S,T,P,K<:Kernel{S,T}} <: IntegralOperator{S,T}
     kernel      ::  K
     domain      ::  Domain{S}
     param       ::  P
     paramdomain ::  Domain
 end
 
-BoundaryIntOp(kernel, k_domain, param) =
-    BoundaryIntOp(kernel, k_domain, param, domain(param))
+BoundaryIntegralOperator(kernel, k_domain, param) =
+    BoundaryIntegralOperator(kernel, k_domain, param, domain(param))
 
-BoundaryIntOp(kernel::Kernel{S,T}, domain, param, paramdomain) where {S,T} =
-    BoundaryIntOp{S,T,typeof(param),typeof(kernel)}(kernel, domain, param, paramdomain)
+BoundaryIntegralOperator(kernel::Kernel{S,T}, domain, param, paramdomain) where {S,T} =
+    BoundaryIntegralOperator{S,T,typeof(param),typeof(kernel)}(kernel, domain, param, paramdomain)
 
-BasisFunctions.name(op::BoundaryIntOp) = "Boundary integral operator"
+BasisFunctions.name(op::BoundaryIntegralOperator) = "Boundary integral operator"
 
-kernel(op::BoundaryIntOp) = op.kernel
-domain(op::BoundaryIntOp) = op.domain
-parameterization(op::BoundaryIntOp) = op.param
-paramdomain(op::BoundaryIntOp) = op.paramdomain
+kernel(op::BoundaryIntegralOperator) = op.kernel
+domain(op::BoundaryIntegralOperator) = op.domain
+parameterization(op::BoundaryIntegralOperator) = op.param
+paramdomain(op::BoundaryIntegralOperator) = op.paramdomain
 
-eval_kernel(op::BoundaryIntOp, t, tau) =
+eval_kernel(op::BoundaryIntegralOperator, t, tau) =
     _eval_kernel(op, t, tau, op.param, op.kernel)
 
-eval_kernel(op::BoundaryIntOp, t, tau, x, y) =
+eval_kernel(op::BoundaryIntegralOperator, t, tau, x, y) =
     _eval_kernel(op, t, tau, op.param, op.kernel, x, y)
 
-_eval_kernel(op::BoundaryIntOp, t, tau, param, kernel,
+_eval_kernel(op::BoundaryIntegralOperator, t, tau, param, kernel,
     x = applymap(param, t), y = applymap(param, tau)) = eval_kernel(kernel, x, y)
 
-measure(op::BoundaryIntOp{S,T,P}) where {S,T,P} = ParameterizationMeasure{P,S,T}(op.param)
+measure(op::BoundaryIntegralOperator{S,T,P}) where {S,T,P} = ParameterizationMeasure{P,S,T}(op.param)
 
-isperiodic(op::BoundaryIntOp) = paramdomain(op) isa Interval{:closed,:open}
+isperiodic(op::BoundaryIntegralOperator) = paramdomain(op) isa Interval{:closed,:open}
 
-period(op::BoundaryIntOp) = width(paramdomain(op))
+period(op::BoundaryIntegralOperator) = width(paramdomain(op))
 
-singularity(op::BoundaryIntOp) = singularity(kernel(op))
+singularity(op::BoundaryIntegralOperator) = singularity(kernel(op))
 
 
 Base.:*(op::GridSampling, iop::IntegralOperator) = CollocationIntOp(op, iop)

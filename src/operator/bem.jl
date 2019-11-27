@@ -12,7 +12,6 @@ mutable struct DenseBEMOperator{S,T} <: BEMOperator{T}
     isassembled ::  Bool
 end
 
-
 initvalue(::Type{T}) where {T <: AbstractFloat} = floatmax(T)
 initvalue(::Type{Complex{T}}) where {T <: AbstractFloat} = initvalue(real(T))
 
@@ -23,6 +22,8 @@ function DenseBEMOperator(dict::Dictionary, sampling::SamplingOperator,
 end
 
 integraloperator(A::DenseBEMOperator) = A.intop
+
+BasisFunctions.dest(op::DenseBEMOperator) = dest(op.sampling)
 
 isassembled(A::DenseBEMOperator{S,T}, i, j) where {S,T} = !(A.A[i,j] == initvalue(T))
 isassembled(A::DenseBEMOperator) = A.isassembled == true
