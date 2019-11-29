@@ -67,7 +67,7 @@ QuadQBF{T}(n::Int = 1; oversamplingfactor = 2) where {T} =
 function QuadQBF{T}(n::Int, M::Int) where {T}
     coef = bspline_refinable_coefficients(n, T)
     x, w = refinable_quadrature(coef, M)
-    QuadQBF{T}(coef, x[1], x[end], x, w, WR, WS)
+    QuadQBF{T}(coef, x[1], x[end], x, w)
 end
 
 leftpoint(q::QuadQBF) = q.a
