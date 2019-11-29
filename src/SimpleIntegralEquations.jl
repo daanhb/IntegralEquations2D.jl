@@ -6,7 +6,8 @@ using QuadGK, HCubature, FastGaussQuadrature,
     DomainIntegrals,
     BasisFunctions, GridArrays,
     CardinalBSplines, CompactTranslatesDict,
-    LinearAlgebra
+    LinearAlgebra,
+    RecipesBase
 
 
 import DomainSets:
@@ -47,6 +48,7 @@ include("kernels/helmholtz.jl")
 
 include("domains/param.jl")
 include("domains/smooth.jl")
+include("domains/recipes.jl")
 
 include("assembly/refinable.jl")
 include("assembly/quadrature.jl")

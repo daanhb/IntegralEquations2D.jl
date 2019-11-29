@@ -1,6 +1,6 @@
 
 using CompactTranslatesDict:
-    PeriodicSubinterval
+    PeriodicInterval
 
 using BasisFunctions:
     unsafe_eval_element,
@@ -24,7 +24,7 @@ function projectionintegral(qs, f, dict, idx, measure, sing, domain)
     DomainIntegrals.integral(qs, integrand, domain, sing)
 end
 
-projectionintegral(qs, f, dict, idx, measure, sing, domain::PeriodicSubinterval) =
+projectionintegral(qs, f, dict, idx, measure, sing, domain::PeriodicInterval) =
     sum(projectionintegral(qs, f, dict, idx, measure, sing, d) for d in elements(domain))
 
 
@@ -40,7 +40,7 @@ function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, s
 end
 
 function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
-        domain1::PeriodicSubinterval, domain2::PeriodicSubinterval)
+        domain1::PeriodicInterval, domain2::PeriodicInterval)
     sum(doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing, d1, d2)
             for d1 in elements(domain1), d2 in elements(domain2))
 end
@@ -181,7 +181,7 @@ projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing::NoSingularity, doma
 projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain::AbstractInterval) =
     projectionintegral(QuadAdaptive(), f, dict, idx, measure, sing, domain)
 
-function projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing::NoSingularity, domain::PeriodicSubinterval)
+function projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing::NoSingularity, domain::PeriodicInterval)
     if numelements(domain) == 1
         z = projectionintegral(qs, f, dict, idx, measure, sing, element(domain,1))
     else
@@ -197,7 +197,7 @@ doubleprojection(qs::QuadQBF, f, dict1, idx1, measure1, dict2, idx2, measure2, s
         qbf_quadrature2(f, dict1, idx1, measure1, domain1, dict2, idx2, measure2, domain2, qs.a, qs.b, qs.x, qs.w)
 
 function doubleprojection(qs::QuadQBF, f, dict1, idx1, measure1, dict2, idx2, measure2, sing::NoSingularity,
-        domain1::PeriodicSubinterval, domain2::PeriodicSubinterval)
+        domain1::PeriodicInterval, domain2::PeriodicInterval)
 
     A1, B1 = extrema(domain1.periodicdomain)
     A2, B2 = extrema(domain2.periodicdomain)

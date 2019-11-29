@@ -27,7 +27,7 @@ issingular_coll(quad, sing, x, ϕ_j) =
     _issingular_coll(x, support(ϕ_j...))
 _issingular_coll(x, d::AbstractInterval) = x ∈ d
 # Line below catches a corner case
-_issingular_coll(x, d::PeriodicSubinterval) =
+_issingular_coll(x, d::PeriodicInterval) =
     x ∈ d || (x+period(d)) ∈ d || (x-period(d)) ∈ d
 
 function collocation_BEM_entry(x, ϕ_j, intop, μ, quad, sing = singularity(intop))
@@ -58,7 +58,7 @@ issingular_galerkin(quad, sing, ϕ_i, ϕ_j) =
     _issingular_galerkin(quad, sing, ϕ_i, ϕ_j, support(ϕ_i...), support(ϕ_j...))
 _issingular_galerkin(quad, sing, ϕ_i, ϕ_j, domain1, domain2) =
     !isempty(domain1 ∩ domain2)
-_issingular_galerkin(quad, sing, ϕ_i, ϕ_j, domain1::PeriodicSubinterval, domain2::PeriodicSubinterval) =
+_issingular_galerkin(quad, sing, ϕ_i, ϕ_j, domain1::PeriodicInterval, domain2::PeriodicInterval) =
     distance(domain1, domain2) == 0
 
 function distance(domain1::AbstractInterval, domain2::AbstractInterval)
@@ -75,7 +75,7 @@ function distance(domain1::AbstractInterval, domain2::AbstractInterval)
     end
 end
 
-function distance(domain1::PeriodicSubinterval, domain2::PeriodicSubinterval)
+function distance(domain1::PeriodicInterval, domain2::PeriodicInterval)
     @assert domain1.periodicdomain == domain2.periodicdomain
     period = width(domain1.periodicdomain)
     sub1 = domain1.subdomain
