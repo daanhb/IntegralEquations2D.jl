@@ -44,7 +44,8 @@ chebyshev_eval(p, x) = real(cos(p*acos(x)))
 """
 Calculate the modified moments of the scaling function defined by coefficients.
 """
-function chebyshev_moments(coefficients::AbstractVector{T}, M::Int) where {T}
+function chebyshev_moments(coefficients::AbstractVector, M::Int)
+    T = eltype(coefficients)
     m = zeros(T,M+1,1)
     m[1] = 1
     L = length(coefficients)
