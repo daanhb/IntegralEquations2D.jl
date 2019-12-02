@@ -57,9 +57,7 @@ issingular_galerkin(quad, ::NoSingularity, ϕ_i, ϕ_j) = false
 issingular_galerkin(quad, sing, ϕ_i, ϕ_j) =
     _issingular_galerkin(quad, sing, ϕ_i, ϕ_j, support(ϕ_i...), support(ϕ_j...))
 _issingular_galerkin(quad, sing, ϕ_i, ϕ_j, domain1, domain2) =
-    !isempty(domain1 ∩ domain2)
-_issingular_galerkin(quad, sing, ϕ_i, ϕ_j, domain1::PeriodicInterval, domain2::PeriodicInterval) =
-    distance(domain1, domain2) == 0
+    distance(domain1, domain2) < 100eps(eltype(domain1))
 
 function distance(domain1::AbstractInterval, domain2::AbstractInterval)
     a1 = leftendpoint(domain1)
