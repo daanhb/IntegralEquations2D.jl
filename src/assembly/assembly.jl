@@ -25,10 +25,10 @@ collocation_BEM_entry(grid::AbstractGrid, i, ϕ_j, intop, μ, quad) =
 issingular_coll(quad, ::NoSingularity, x, ϕ_j) = false
 issingular_coll(quad, sing, x, ϕ_j) =
     _issingular_coll(x, support(ϕ_j...))
-_issingular_coll(x, d::AbstractInterval) = x ∈ d
+_issingular_coll(x, d::AbstractInterval) = approx_in(x, d)
 # Line below catches a corner case
 _issingular_coll(x, d::PeriodicInterval) =
-    x ∈ d || (x+period(d)) ∈ d || (x-period(d)) ∈ d
+    approx_in(x, d) || approx_in(x+period(d), d) || approx_in(x-period(d), d)
 
 function collocation_BEM_entry(x, ϕ_j, intop, μ, quad, sing = singularity(intop))
     if issingular_coll(quad, sing, x, ϕ_j)
