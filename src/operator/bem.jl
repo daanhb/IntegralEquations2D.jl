@@ -41,6 +41,8 @@ isassembled(A::DenseBEMOperator) = A.isassembled == true
 Base.:*(op::SampledIntegralOperator, dict::Dictionary) =
     DenseBEMOperator(dict, samplingoperator(op), integraloperator(op))
 
+export assemble!
+"Assemble the dense BEM matrix."
 function assemble!(op::DenseBEMOperator, quad = op.quad, A = op.A; verbose = false)
     for i in 1:size(A, 1)
         verbose && println("Assembly: row $i")

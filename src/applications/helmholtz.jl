@@ -23,8 +23,8 @@ function hh_dlp_kernel(x, y, tau, wavenumber, param)
     end
 end
 
-hh_slpt(x, y, wavenumber, normal_x) = im * besselh(0, 1, wavenumber*norm(x-y)) / 4
-hh_hypersingular(x, y, wavenumber, normal_x, normal_y) = im * besselh(0, 1, wavenumber*norm(x-y)) / 4
+hh_slpt(x, y, wavenumber, normal_x) = error("to do")
+hh_hypersingular(x, y, wavenumber, normal_x, normal_y) = error("to do")
 
 
 

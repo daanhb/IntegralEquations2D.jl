@@ -2,6 +2,8 @@
 using BasisFunctions:
     unsafe_eval_element
 
+export compute_BEM_entry
+"Compute the BEM matrix entry A[i,j]."
 compute_BEM_entry(op::DenseBEMOperator, i::Int, j::Int, quad = op.quad) =
     compute_BEM_entry(i, (src(op), j), samplingoperator(op), integraloperator(op), quad)
 
