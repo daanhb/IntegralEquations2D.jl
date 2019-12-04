@@ -47,6 +47,7 @@ end
 
 
 
+export QuadQBF
 """
 QuadQBF uses specialized quadrature routines that incorporate the basis function of the discretization
 into their weight function. This means only evaluation of the Green's function are required.

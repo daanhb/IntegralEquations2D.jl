@@ -1,12 +1,13 @@
-# @recipe function f(D::Domain)
-#     title --> "Domain"
+# using RecipesBase
+
+# @recipe function f(domain::IE.Kite; n=100)
 #     legend --> false
-#     if hasparameterization(d)
-#         param = parameterization(D)
-#         supp = support(param)
-#
+#     if IE.hasparameterization(domain)
+#         dpar = IE.domain(param)
+#         points = EquispacedGrid(n, dpar)
+#         values = applymap.(Ref(param), points)
+#         values
 #     else
 #         error("Don't know how to plot domain ", D)
 #     end
-#     grid, vals
 # end
