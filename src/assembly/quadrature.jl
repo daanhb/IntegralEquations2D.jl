@@ -24,8 +24,15 @@ function projectionintegral(qs, f, dict, idx, measure, sing, domain)
     DomainIntegrals.integral(qs, integrand, domain, sing)
 end
 
-projectionintegral(qs, f, dict, idx, measure, sing, domain::PeriodicInterval) =
-    sum(projectionintegral(qs, f, dict, idx, measure, sing, d) for d in elements(domain))
+# Teach DomainIntegrals how to evaluate on a PeriodicInterval
+function DomainIntegrals.quadrature_d(qs, integrand, domain::PeriodicInterval, measure, sing)
+    if numelements(domain) > 1
+        IEs = DomainIntegrals.quadrature.(Ref(qs), Ref(integrand), elements(domain), Ref(measure), Ref(sing))
+        DomainIntegrals.recombine_outcome(IEs)
+    else
+        DomainIntegrals.quadrature_d(qs, integrand, element(domain,1), measure, sing)
+    end
+end
 
 
 
