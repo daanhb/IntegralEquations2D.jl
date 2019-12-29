@@ -47,6 +47,7 @@ include("kernels/kernel.jl")
 include("kernels/helmholtz.jl")
 
 include("domains/param.jl")
+include("domains/polygons.jl")
 include("domains/smooth.jl")
 include("domains/recipes.jl")
 
