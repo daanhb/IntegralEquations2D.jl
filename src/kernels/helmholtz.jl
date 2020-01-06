@@ -61,15 +61,18 @@ singularity(k::Helmholtz_SLP_2D) = LogDiagonalSingularity()
 "Assume that `K(x,y) = phi(z)` with `z=|x-y|`."
 function eval_phi(kernel::Helmholtz_SLP_2D, z)
     kz = wavenumber(kernel) * z
-    (im*besselj(0, kz) - bessely(0, kz)) / 4 # AMOS' zbesh (besselh) is about 1.5 times slower
+    # NOTE: as kz is real, J0 and Y0 are both real in kz
+    complex(-bessely0(kz), besselj0(kz)) / 4
 end
+
+# AMOS' zbesh (besselh) is about 10 times slower and also errors near singularities
 # eval_phi(kernel::Helmholtz_SLP_2D, z) = im * besselh(0, 1, wavenumber(kernel)*z) / 4
 
 eval_kernel(kernel::Helmholtz_SLP_2D, x, y) = eval_phi(kernel, norm(x-y))
 
 
 kernel_singular_reg(kernel::Helmholtz_SLP_2D{T}, x::Vec2{T}, y::Vec2{T}) where {T} =
-    -1/4 * 2/T(pi) * besselj(0, kernel.wavenumber * norm(x-y))
+    -1/4 * 2/T(pi) * besselj0(kernel.wavenumber * norm(x-y))
 
 
 """
@@ -101,5 +104,5 @@ BasisFunctions.name(kernel::Helmholtz_DLP_2D) = "2D Helmholtz double layer poten
 #         z1 =  im/4 - 1/4*2/T(pi)*(log(rt/2)+gamma)
 #     end
 #
-#     z1 + 1/4*2/pi*log(N/period(param))*besselj(0, kernel.wavenumber * res)
+#     z1 + 1/4*2/pi*log(N/period(param))*besselj0(kernel.wavenumber * res)
 # end
