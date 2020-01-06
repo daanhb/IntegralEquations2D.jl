@@ -59,7 +59,11 @@ singularity(k::Helmholtz_SLP_2D) = LogDiagonalSingularity()
 
 
 "Assume that `K(x,y) = phi(z)` with `z=|x-y|`."
-eval_phi(kernel::Helmholtz_SLP_2D, z) = im * besselh(0, 1, wavenumber(kernel)*z) / 4
+function eval_phi(kernel::Helmholtz_SLP_2D, z)
+    kz = wavenumber(kernel) * z
+    (im*besselj(0, kz) - bessely(0, kz)) / 4 # AMOS' zbesh (besselh) is about 1.5 times slower
+end
+# eval_phi(kernel::Helmholtz_SLP_2D, z) = im * besselh(0, 1, wavenumber(kernel)*z) / 4
 
 eval_kernel(kernel::Helmholtz_SLP_2D, x, y) = eval_phi(kernel, norm(x-y))
 
