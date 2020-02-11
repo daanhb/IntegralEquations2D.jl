@@ -18,7 +18,7 @@ function hh_dlp_kernel(x, y, tau, wavenumber, param)
         hh_dlp(x, y, wavenumber, normal(param, tau), z)
     else
         # Evaluate the limiting value
-        hh_dlp(x, y, wavenumber, normal(param, tau),
+        hh_dlp_limit(x, y, wavenumber, normal(param, tau),
             gradient(param, tau), gradient_derivative(param, tau))
     end
 end

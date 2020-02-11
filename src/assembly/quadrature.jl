@@ -52,6 +52,11 @@ function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, s
             for d1 in elements(domain1), d2 in elements(domain2))
 end
 
+function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
+        domain1::PeriodicInterval, domain2::UnitInterval)
+    sum(doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing, d1, domain2)
+            for d1 in elements(domain1))
+end
 
 
 export QuadQBF

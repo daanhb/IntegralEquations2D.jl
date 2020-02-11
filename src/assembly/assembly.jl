@@ -83,6 +83,8 @@ function distance(domain1::PeriodicInterval, domain2::PeriodicInterval)
     min(distance(sub1, sub2), distance(sub1+period,sub2), distance(sub1-period,sub2))
 end
 
+distance(domain1::UnitInterval, domain2::PeriodicInterval) = zero(eltype(domain1))
+
 function galerkin_BEM_entry(ϕ_i, ϕ_j, μ_projection, intop, quad, sing = singularity(intop))
     if issingular_galerkin(quad, sing, ϕ_i, ϕ_j)
         singular_galerkin_BEM_entry(quad, sing, ϕ_i, μ_projection, ϕ_j, intop)
