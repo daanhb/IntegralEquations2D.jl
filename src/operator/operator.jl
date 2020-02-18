@@ -2,47 +2,51 @@
 """
 The supertype of all integral operators.
 
-The kernel function maps arguments of type `S` to an output of type `T`.
+An integral operator is characterized by the way it acts on a function:
+integration with a kernel function and a certain integration measure.
 """
-abstract type IntegralOperator{S,T} <: AbstractOperator end
+abstract type IntegralOperator <: AbstractOperator end
 
 BasisFunctions.name(op::IntegralOperator) = "Integral operator"
 
 
+# kernels typically have diagonal singularities.
+struct LogDiagonalSingularity <: CurveSingularity end
+struct RadialDiagonalSingularity <: CurveSingularity end
+struct UnknownDiagonalSingularity <: CurveSingularity end
 
-abstract type DiscretizedIntOp{S,T} <: AbstractOperator end
+"Singularity of the kernel of the integral operator."
+singularity(op::IntegralOperator) = UnknownDiagonalSingularity()
 
-"Collocation integral operator"
-struct CollocationIntOp{S,T} <: DiscretizedIntOp{S,T}
-    sampling    ::  GridSampling
-    intop       ::  IntegralOperator{S,T}
+
+
+"The combination of an integral operator with a sampling operator."
+struct SampledIntegralOperator <: AbstractOperator
+    intop       ::  IntegralOperator
+    sampling    ::  AbstractOperator
 end
 
-CollocationIntOp{S,T}(intop::IntegralOperator{S,T}, grid::AbstractGrid{S}) where {S,T} =
-    CollocationIntOp{S,T}(intop, GridSampling(grid, T))
+samplingoperator(op::SampledIntegralOperator) = op.sampling
+integraloperator(op::SampledIntegralOperator) = op.intop
 
-BasisFunctions.name(op::CollocationIntOp) = "Collocation integral operator"
+Base.:*(op::GridSampling, intop::IntegralOperator) = SampledIntegralOperator(intop, op)
+Base.:*(op::ProjectionSampling, intop::IntegralOperator) = SampledIntegralOperator(intop, op)
 
-"Galerkin integral operator"
-struct GalerkinIntOp{S,T} <: DiscretizedIntOp{S,T}
-    sampling    ::  ProjectionSampling
-    intop       ::  IntegralOperator{S,T}
-end
+BasisFunctions.name(op::SampledIntegralOperator) = _name(op, op.intop, op.sampling)
 
-BasisFunctions.name(op::GalerkinIntOp) = "Galerkin integral operator"
-
-
+_name(::SampledIntegralOperator, intop, ::GridSampling) = "Collocation integral operator"
+_name(::SampledIntegralOperator, intop, ::ProjectionSampling) = "Galerkin integral operator"
 
 
 "The lazy application of an integral operator applied to a function."
-struct LazyIntOp
+struct LazyIntegralOperator
     intop   ::  IntegralOperator
     f
 end
 
-Base.:*(op::IntegralOperator, f) = LazyIntOp(op, f)
+Base.:*(op::IntegralOperator, f) = LazyIntegralOperator(op, f)
 
-(op::LazyIntOp)(x) = eval_integral_operator(op.intop, op.f, x)
+(op::LazyIntegralOperator)(x) = eval_integral_operator(op.intop, op.f, x)
 
 eval_integral_operator(op::IntegralOperator, f, x; options...) =
     _eval_integral_operator(kernel(op), domain(op), f, x; options...)

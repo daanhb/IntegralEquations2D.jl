@@ -20,12 +20,23 @@ projectionintegral(qs, f, dict, idx, measure, sing = NoSingularity()) =
 
 
 function projectionintegral(qs, f, dict, idx, measure, sing, domain)
-    integrand = t -> f(t)*unsafe_eval_element(dict, idx, t)*unsafe_weight(measure, t)
-    DomainIntegrals.integral(qs, integrand, domain, sing)
+    if domain isa PeriodicInterval
+        sum(projectionintegral(qs, f, dict, idx, measure, sing, el) for el in elements(domain))
+    else
+        integrand = t -> f(t)*unsafe_eval_element(dict, idx, t)*unsafe_weight(measure, t)
+        DomainIntegrals.integral(qs, integrand, domain, sing)
+    end
 end
 
-projectionintegral(qs, f, dict, idx, measure, sing, domain::PeriodicInterval) =
-    sum(projectionintegral(qs, f, dict, idx, measure, sing, d) for d in elements(domain))
+# # Teach DomainIntegrals how to evaluate on a PeriodicInterval
+# function DomainIntegrals.quadrature_d(qs, integrand, domain::PeriodicInterval, measure, sing)
+#     if numelements(domain) > 1
+#         IEs = DomainIntegrals.quadrature.(Ref(qs), Ref(integrand), elements(domain), Ref(measure), Ref(sing))
+#         DomainIntegrals.recombine_outcome(IEs)
+#     else
+#         DomainIntegrals.quadrature_d(qs, integrand, element(domain,1), measure, sing)
+#     end
+# end
 
 
 
@@ -45,8 +56,14 @@ function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, s
             for d1 in elements(domain1), d2 in elements(domain2))
 end
 
+function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
+        domain1::PeriodicInterval, domain2::UnitInterval)
+    sum(doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing, d1, domain2)
+            for d1 in elements(domain1))
+end
 
 
+export QuadQBF
 """
 QuadQBF uses specialized quadrature routines that incorporate the basis function of the discretization
 into their weight function. This means only evaluation of the Green's function are required.
@@ -115,7 +132,7 @@ projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing::NoSingularity, doma
         leftpoint(qs), rightpoint(qs), quad_x(qs), quad_w(qs))
 
 # In case of a singularity, we revert to adaptive quadrature
-projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain::AbstractInterval) =
+projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain) =
     projectionintegral(QuadAdaptive(), f, dict, idx, measure, sing, domain)
 
 function projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing::NoSingularity, domain::PeriodicInterval)

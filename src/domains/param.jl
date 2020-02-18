@@ -1,20 +1,11 @@
 
 abstract type Parameterization{S,T} <: AbstractMap{S,T} end
 
-gradientnorm(m, t) = norm(gradient(m, t))
+jacobian(m::DomainSets.UnitCircleMap{S,T}) where {S,T} = one(S)
 
-gradientnorm(m::DomainSets.UnitCircleMap{S,T}) where {S,T} = one(S)
-
-struct ParametricDomain{S,T} <: DomainSets.DerivedDomain{T}
-    superdomain ::  Domain{T}
-    pardomain   ::  Domain{S}
-    par         ::  AbstractMap{S,T}
+export normal
+"Evaluate the normal of the parameterized domain at the given point."
+function normal(p::Parameterization, x)
+    a = gradient(p, x)
+    SVector(-a[2], a[1])
 end
-
-ParametricDomain(d::Domain) = _ParametricDomain(d, parameterization(d))
-_ParametricDomain(d, par) = ParametricDomain(d, domain(par), par)
-
-integral(f, d::ParametricDomain; options...) = _integral(f, d, d.par; options...)
-
-_integral(f, d::ParametricDomain, param; options...) =
-    integral(t -> f(applymap(param, t))*gradientnorm(param, t), d.pardomain; options...)

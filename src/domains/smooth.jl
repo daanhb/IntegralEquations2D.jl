@@ -3,6 +3,7 @@
 
 ## A kite-shaped domain
 
+export Kite
 "A kite-shaped domain in `ℝ^2`."
 struct Kite{T} <: EuclideanDomain{2,T}
     a   ::  Int       # a parameter
@@ -39,9 +40,18 @@ function gradient(m::KiteMap, t)
     SVector(-b*cos(b*t)+m.a*b*sin(m.a*b*t), -b*sin(b*t))
 end
 
+function gradient_derivative(m::KiteMap, t)
+    b = 2*convert(domaintype(m), pi)
+    SVector(b^2*sin(b*t)+(m.a*b)^2*cos(m.a*b*t), -b^2*cos(b*t))
+end
+
+jacobian(m::KiteMap, t) = norm(gradient(m, t))
+
 
 ## An ellipse
 
+export Ellipse
+"An ellipse-shaped domain"
 struct Ellipse{T} <: EuclideanDomain{2,T}
     center  ::  SVector{2,T}        # center of the ellipse
     radius  ::  SVector{2,T}        # (radius1,radius2)
@@ -79,8 +89,15 @@ end
 
 function gradient(m::EllipseMap, t)
     b = 2*convert(domaintype(m), pi)
-    SVector(-m.radius[1] * b * sin(b*t),  m.radius[2] * b * cos(b*t))
+    SVector(-m.radius[1]*b*sin(b*t),  m.radius[2]*b*cos(b*t))
 end
+
+function gradient_derivative(m::EllipseMap, t)
+    b = 2*convert(domaintype(m), pi)
+    SVector(m.radius[1]*b^2*cos(b*t),  m.radius[2]*b^2*sin(b*t))
+end
+
+jacobian(m::EllipseMap, t) = norm(gradient(m, t))
 
 # # function normal{T}(b::Ellipse{T}, t)
 # #     n = Vec2{T}(b.radius2 * cos(2*T(pi)*t), b.radius1 * sin(2*T(pi)*t))
