@@ -20,19 +20,23 @@ projectionintegral(qs, f, dict, idx, measure, sing = NoSingularity()) =
 
 
 function projectionintegral(qs, f, dict, idx, measure, sing, domain)
-    integrand = t -> f(t)*unsafe_eval_element(dict, idx, t)*unsafe_weight(measure, t)
-    DomainIntegrals.integral(qs, integrand, domain, sing)
-end
-
-# Teach DomainIntegrals how to evaluate on a PeriodicInterval
-function DomainIntegrals.quadrature_d(qs, integrand, domain::PeriodicInterval, measure, sing)
-    if numelements(domain) > 1
-        IEs = DomainIntegrals.quadrature.(Ref(qs), Ref(integrand), elements(domain), Ref(measure), Ref(sing))
-        DomainIntegrals.recombine_outcome(IEs)
+    if domain isa PeriodicInterval
+        sum(projectionintegral(qs, f, dict, idx, measure, sing, el) for el in elements(domain))
     else
-        DomainIntegrals.quadrature_d(qs, integrand, element(domain,1), measure, sing)
+        integrand = t -> f(t)*unsafe_eval_element(dict, idx, t)*unsafe_weight(measure, t)
+        DomainIntegrals.integral(qs, integrand, domain, sing)
     end
 end
+
+# # Teach DomainIntegrals how to evaluate on a PeriodicInterval
+# function DomainIntegrals.quadrature_d(qs, integrand, domain::PeriodicInterval, measure, sing)
+#     if numelements(domain) > 1
+#         IEs = DomainIntegrals.quadrature.(Ref(qs), Ref(integrand), elements(domain), Ref(measure), Ref(sing))
+#         DomainIntegrals.recombine_outcome(IEs)
+#     else
+#         DomainIntegrals.quadrature_d(qs, integrand, element(domain,1), measure, sing)
+#     end
+# end
 
 
 
@@ -128,7 +132,7 @@ projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing::NoSingularity, doma
         leftpoint(qs), rightpoint(qs), quad_x(qs), quad_w(qs))
 
 # In case of a singularity, we revert to adaptive quadrature
-projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain::AbstractInterval) =
+projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain) =
     projectionintegral(QuadAdaptive(), f, dict, idx, measure, sing, domain)
 
 function projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing::NoSingularity, domain::PeriodicInterval)

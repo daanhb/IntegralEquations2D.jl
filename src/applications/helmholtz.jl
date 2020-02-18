@@ -1,10 +1,13 @@
 
+besselh0(z) = besselj0(z) + im*bessely0(z)
+besselh1(z) = besselj1(z) + im*bessely1(z)
+
 "Evaluate the Helmholtz 2D single layer potential kernel"
-hh_slp(x, y, wavenumber) = im * besselh(0, 1, wavenumber*norm(x-y)) / 4
+hh_slp(x, y, wavenumber) = im * besselh0(wavenumber*norm(x-y)) / 4
 
 "Evaluate the Helmholtz 2D double layer potential kernel"
 hh_dlp(x, y, wavenumber, normal_y, z = norm(x-y)) =
-    (normal_y' * (x-y)) * im * wavenumber/4 * besselh(1, 1, wavenumber*z) / z
+    (normal_y' * (x-y)) * im * wavenumber/4 * besselh1(wavenumber*z) / z
 
 "Diagonal limiting value of the Helmholtz 2D double layer potential kernel"
 function hh_dlp_limit(x, y, wavenumber, normal_y, grad_y, grad_d_y)

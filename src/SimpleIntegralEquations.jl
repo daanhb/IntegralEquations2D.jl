@@ -44,6 +44,7 @@ const Vec2{T} = SVector{2,T}
 const Vec3{T} = SVector{3,T}
 
 include("domains/param.jl")
+include("domains/polygons.jl")
 include("domains/smooth.jl")
 include("domains/recipes.jl")
 
