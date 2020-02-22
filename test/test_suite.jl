@@ -1,15 +1,22 @@
 
 using Test
 
-using CompactTranslatesDict,
+using BasisFunctions,
+    CompactTranslatesDict,
     DomainIntegrals,
-    BasisFunctions,
-    FrameFun
+    DomainSets,
+    FrameFun,
+    StaticArrays
 
 using SimpleIntegralEquations
 
 include("test_qbf.jl")
+include("test_helmholtz.jl")
 
-@testset "QBF" begin
-    test_qbf()
+# @testset "QBF" begin
+#     test_qbf()
+# end
+
+@testset "Helmholtz BEM" begin
+    test_helmholtz()
 end
