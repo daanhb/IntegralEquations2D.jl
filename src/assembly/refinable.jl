@@ -6,27 +6,26 @@ The method is described in:
 W. Sweldens and R. Piessens, "Quadrature formulae and asymptotic error expansions
 for wavelet approximations of smooth functions", SIAM J. Numer. Anal. 31(4),
 pp. 1240-1264, 1994.
+
+We return a quadrature rule that with points spaced 1/M apart, symmetric with
+respect to the origin, and including the origin itself.
 """
 function refinable_quadrature(coefficients, M = length(coefficients)-1)
     @assert sum(coefficients) ≈ sqrt(2)
-
-    T = eltype(coefficients)
     L = length(coefficients)
-    K = (T(L)-1)/2
-    x = collect(range(-K, stop = K, length = M+1))
-    w = refinable_quadrature_weights(coefficients, M)
-    x, w
-end
-
-
-function refinable_quadrature_weights(coefficients::AbstractVector{T}, M::Int) where T
     # Perform calculations in BigFloat for greater accuracy
-    t = range(-BigFloat(1),stop = BigFloat(1), length = M+1)
+    if isodd(L) || (iseven(L) && iseven(M))
+        t = range(-BigFloat(1.),stop = BigFloat(1.), length = M+1)
+    else
+        # We have to shift the grid in order to include the center point
+        t = range(-BigFloat(1.),stop = BigFloat(1.), length = 2M+1)[2:2:end-1]
+    end
     A = chebyshev_vandermonde_matrix(t)
-    m = chebyshev_moments(BigFloat.(coefficients), M)
+    m = chebyshev_moments(BigFloat.(coefficients), length(t)-1)
     w = A\m
-    map(T, w)[:]
+    (L-1) * t/2, map(eltype(coefficients), w)[:]
 end
+
 
 function chebyshev_vandermonde_matrix(t::AbstractVector{T}) where {T}
     M = length(t)-1
@@ -46,7 +45,7 @@ Calculate the modified moments of the scaling function defined by coefficients.
 """
 function chebyshev_moments(coefficients::AbstractVector, M::Int)
     T = eltype(coefficients)
-    m = zeros(T,M+1,1)
+    m = zeros(T,M+1)
     m[1] = 1
     L = length(coefficients)
 
@@ -61,7 +60,7 @@ function chebyshev_moments(coefficients::AbstractVector, M::Int)
             e = zero(T)
             for k in 1:L
                 # % CAVE: our coefficients differ by a factor 1/sqrt(2) from Sweldens!
-                e = e + T(1)/sqrt(T(2))*coefficients[k]*w[p+1,i+1,k]
+                e = e + 1/sqrt(T(2))*coefficients[k]*w[p+1,i+1,k]
             end
             d = d + e*m[i+1]
         end
@@ -73,10 +72,10 @@ end
 
 # Calculate the `w' coefficients in the algorithm by Sweldens and Piessens.
 # This is based on Appendix A in the above-mentioned reference.
-function wcoefficients(T, L, k, M::Int)
-    lambda = T(2)*(k-1)/(L-1)-1
+function wcoefficients(::Type{T}, L, k, M::Int) where {T}
+    lambda = T(2)*(k-1)/(T(L)-1)-1
 
-    w = zeros(typeof(lambda),M+1,M+1)
+    w = zeros(T,M+1,M+1)
 
     w[1,1] = 1
     w[2,1] = lambda

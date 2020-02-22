@@ -28,15 +28,15 @@ function projectionintegral(qs, f, dict, idx, measure, sing, domain)
     end
 end
 
-# # Teach DomainIntegrals how to evaluate on a PeriodicInterval
-# function DomainIntegrals.quadrature_d(qs, integrand, domain::PeriodicInterval, measure, sing)
-#     if numelements(domain) > 1
-#         IEs = DomainIntegrals.quadrature.(Ref(qs), Ref(integrand), elements(domain), Ref(measure), Ref(sing))
-#         DomainIntegrals.recombine_outcome(IEs)
-#     else
-#         DomainIntegrals.quadrature_d(qs, integrand, element(domain,1), measure, sing)
-#     end
-# end
+# Teach DomainIntegrals how to evaluate on a PeriodicInterval
+function DomainIntegrals.quadrature_d(qs, integrand, domain::PeriodicInterval, measure, sing)
+    if numelements(domain) > 1
+        IEs = DomainIntegrals.quadrature.(Ref(qs), Ref(integrand), elements(domain), Ref(measure), Ref(sing))
+        DomainIntegrals.recombine_outcome(IEs)
+    else
+        DomainIntegrals.quadrature_d(qs, integrand, element(domain,1), measure, sing)
+    end
+end
 
 
 
@@ -84,7 +84,7 @@ QuadQBF{T}(n::Int = 1; oversamplingfactor = 2) where {T} =
 function QuadQBF{T}(n::Int, M::Int) where {T}
     coef = bspline_refinable_coefficients(n, T)
     x, w = refinable_quadrature(coef, M)
-    QuadQBF{T}(coef, x[1], x[end], x, w)
+    QuadQBF{T}(coef, -(length(coef)-one(T))/2, (length(coef)-one(T))/2, x, w)
 end
 
 leftpoint(q::QuadQBF) = q.a
