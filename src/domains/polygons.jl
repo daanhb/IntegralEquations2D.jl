@@ -46,6 +46,7 @@ function _ols_gradient(A::SVector{2,T}, B::SVector{2,T}, t) where T
 end
 gradient(m::OpenLineSegmentMap, t) = _ols_gradient(A, B, t)
 
+jacobian(m::OpenLineSegmentMap, t) = norm(gradient(m, t))
 
 # Small utility function that probably is somewhere in the standard library
 # Map a range to a unit range
@@ -114,6 +115,8 @@ function gradient(m::RectangleMap, t)
     s, e, st, et = _getpart(m, t)
     _ols_gradient(s, e, _map2ur(t, st, et))
 end
+
+jacobian(m::RectangleMap, t) = norm(gradient(m, t))
 
 
 # Regular polygons
@@ -190,6 +193,8 @@ function gradient(m::RegularPolygonMap, t)
     s, e, st, et = _getpart(m, t)
     _ols_gradient(s, e, _map2ur(t, st, et))
 end
+
+jacobian(m::RegularPolygonMap, t) = norm(gradient(m, t))
 
 
 # A collection of regular polygons
