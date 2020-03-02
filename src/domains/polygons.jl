@@ -34,7 +34,7 @@ domain(m::OpenLineSegmentMap{S}) where S = Interval{:closed,:closed,S}(0, 1)
 image(m::OpenLineSegmentMap{S}) where S = OpenLineSegment{S}(m.A, m.B)
 
 _ols_applymap(A::SVector{2,T}, B::SVector{2,T}, t) where T =
-    t*A + (1 - t)*B
+    (1 - t)*A + t*B
 applymap(m::OpenLineSegmentMap, t) = _ols_applymap(m.A, m.B, t)
 
 function _ols_gradient(A::SVector{2,T}, B::SVector{2,T}, t) where T
