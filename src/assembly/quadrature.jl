@@ -98,7 +98,6 @@ quad_w(q::QuadQBF) = q.w
 # Map a point x from the interval [a,b] linearly to the interval [c,d]
 mapx(x, a, b, c, d) = c + (x-a)/(b-a)*(d-c)
 
-
 function qbf_quadrature(f, dict, idx, measure, domain, qbf_a, qbf_b, qbf_x, qbf_w)
     a, b = extrema(domain)
     T = typeof(f(a))

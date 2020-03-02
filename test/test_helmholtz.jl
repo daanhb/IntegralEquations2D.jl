@@ -23,7 +23,7 @@ function test_helmholtz()
     bcond_field = IE.make_boundary_condition_planewave(wavenumber, direction, amplitude)
     BEM_col = (sampling_col * BIO) * basis
     BEM_gal = (sampling_gal * BIO) * basis
-    quad_qbf = QuadQBF()
+    quad_qbf = QuadQBF(splinedegree)
     quad_gk = QuadAdaptive()
 
     z1 = compute_BEM_entry(BEM_col, 2, 2, quad_qbf)
@@ -47,5 +47,5 @@ function test_helmholtz()
     @test abs(z_col-z_exact) / abs(z_exact) < 1e-4
 
     z_gal = IE.eval_field(BEM_gal, density_gal, point)
-    @test abs(z_gal - z_exact) / abs(z_exact) < 1e-6
+    @test abs(z_gal - z_exact) / abs(z_exact) < 1e-5
 end

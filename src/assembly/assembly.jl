@@ -23,18 +23,32 @@ collocation_BEM_entry(grid::AbstractGrid, i, ϕ_j, intop, quad) =
     collocation_BEM_entry(grid[i], ϕ_j, intop, quad)
 
 
-# Does the collocation entry correspond to a singular integral?
-issingular_coll(quad, ::NoSingularity, x, ϕ_j) = false
+"Does the collocation entry correspond to a (nearly) singular integral, up to the given distance threshold `δ`?"
 issingular_coll(quad, sing, x, ϕ_j) =
-    _issingular_coll(x, support(ϕ_j...))
-_issingular_coll(x, d::AbstractInterval) = approx_in(x, d)
+    issingular_coll(quad, sing, x, ϕ_j, DomainSets.default_tolerance(support(ϕ_j...)))
+
+issingular_coll(quad, ::NoSingularity, x, ϕ_j, δ) = false
+
+issingular_coll(quad, sing, x, ϕ_j, δ) =
+    _issingular_coll(x, support(ϕ_j...), δ)
+_issingular_coll(x, d::AbstractInterval, δ) = approx_in(x, d, δ)
 # Line below catches a corner case
-_issingular_coll(x, d::PeriodicInterval) =
-    approx_in(x, d) || approx_in(x+period(d), d) || approx_in(x-period(d), d)
+_issingular_coll(x, d::PeriodicInterval, δ) =
+    approx_in(x, d, δ) || approx_in(x+period(d), d, δ) || approx_in(x-period(d), d, δ)
+
+"Which threshold decides whether an integral is nearly singular?"
+nearsingular_threshold(ϕ_j) = nearsingular_threshold(support(ϕ_j...))
+# By default we choose twice the length of a single basis function
+nearsingular_threshold(d::AbstractInterval) = 2DomainSets.width(d)
+nearsingular_threshold(d::PeriodicInterval) = 2sum(map(DomainSets.width, elements(d)))
+# we don't know the radius of a general domain...
+nearsingular_threshold(d::Domain) = 0.01
 
 function collocation_BEM_entry(x, ϕ_j, intop, quad, sing = singularity(intop))
     if issingular_coll(quad, sing, x, ϕ_j)
         singular_collocation_entry(quad, x, ϕ_j, intop, sing)
+    elseif issingular_coll(quad, sing, x, ϕ_j, nearsingular_threshold(ϕ_j))
+        nearly_singular_collocation_entry(quad, x, ϕ_j, intop, sing)
     else
         regular_collocation_entry(quad, x, ϕ_j, intop)
     end
@@ -47,6 +61,10 @@ singular_collocation_entry(qs, x, ϕ_j, intop, sing) =
     projectionintegral(qs, y -> eval_kernel(intop, x, y),
             ϕ_j..., measure(intop), collocation_singularity(x, sing))
 
+nearly_singular_collocation_entry(qs, x, ϕ_j, intop, sing) =
+    projectionintegral(qs, y -> eval_kernel(intop, x, y),
+            ϕ_j..., measure(intop), collocation_singularity(x, sing))
+
 regular_collocation_entry(qs, x, ϕ_j, intop) =
     projectionintegral(qs, y -> eval_kernel(intop, x, y), ϕ_j..., measure(intop))
 
@@ -55,11 +73,15 @@ regular_collocation_entry(qs, x, ϕ_j, intop) =
 # Galerkin
 ##############
 
-issingular_galerkin(quad, ::NoSingularity, ϕ_i, ϕ_j) = false
+"Does the Galerkin entry correspond to a (nearly) singular integral, up to the given distance threshold `δ`?"
 issingular_galerkin(quad, sing, ϕ_i, ϕ_j) =
-    _issingular_galerkin(quad, sing, ϕ_i, ϕ_j, support(ϕ_i...), support(ϕ_j...))
-_issingular_galerkin(quad, sing, ϕ_i, ϕ_j, domain1, domain2) =
-    distance(domain1, domain2) < 100eps(eltype(domain1))
+    issingular_galerkin(quad, sing, ϕ_i, ϕ_j, DomainSets.default_tolerance(support(ϕ_j...)))
+
+issingular_galerkin(quad, ::NoSingularity, ϕ_i, ϕ_j, δ) = false
+issingular_galerkin(quad, sing, ϕ_i, ϕ_j, δ) =
+    _issingular_galerkin(quad, sing, ϕ_i, ϕ_j, δ, support(ϕ_i...), support(ϕ_j...))
+_issingular_galerkin(quad, sing, ϕ_i, ϕ_j, δ, domain1, domain2) =
+    distance(domain1, domain2) < δ
 
 function distance(domain1::AbstractInterval, domain2::AbstractInterval)
     a1 = leftendpoint(domain1)
@@ -88,6 +110,8 @@ distance(domain1::UnitInterval, domain2::PeriodicInterval) = zero(eltype(domain1
 function galerkin_BEM_entry(ϕ_i, ϕ_j, μ_projection, intop, quad, sing = singularity(intop))
     if issingular_galerkin(quad, sing, ϕ_i, ϕ_j)
         singular_galerkin_BEM_entry(quad, sing, ϕ_i, μ_projection, ϕ_j, intop)
+    elseif issingular_galerkin(quad, sing, ϕ_i, ϕ_j, nearsingular_threshold(ϕ_j))
+        nearly_singular_galerkin_BEM_entry(quad, sing, ϕ_i, μ_projection, ϕ_j, intop)
     else
         regular_galerkin_BEM_entry(quad, ϕ_i, μ_projection, ϕ_j, intop)
     end
@@ -97,6 +121,10 @@ galerkin_singularity(sing) = sing
 galerkin_singularity(sing::LogDiagonalSingularity) = DiagonalSingularity()
 
 singular_galerkin_BEM_entry(quad, sing, ϕ_i, μ_projection, ϕ_j, intop) =
+    doubleprojection(quad, (x,y) -> eval_kernel(intop, x, y),
+            ϕ_j..., measure(intop), ϕ_i..., μ_projection, galerkin_singularity(sing))
+
+nearly_singular_galerkin_BEM_entry(quad, sing, ϕ_i, μ_projection, ϕ_j, intop) =
     doubleprojection(quad, (x,y) -> eval_kernel(intop, x, y),
             ϕ_j..., measure(intop), ϕ_i..., μ_projection, galerkin_singularity(sing))
 
