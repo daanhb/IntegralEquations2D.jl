@@ -19,8 +19,8 @@ function test_helmholtz()
     sampling_col = GridSampling(coll_points, Complex{Float64})
     sampling_col_obstacle = GridSampling(coll_points_obstacle, Complex{Float64})
     sampling_gal = ProjectionSampling(complex(basis), IE.measure(BIO))
-    bcond = IE.make_parboundary_condition_planewave(param, wavenumber, direction, amplitude)
-    bcond_field = IE.make_boundary_condition_planewave(wavenumber, direction, amplitude)
+    bcond = make_parboundary_condition_planewave(param, wavenumber, direction, amplitude)
+    bcond_field = make_boundary_condition_planewave(wavenumber, direction, amplitude)
     BEM_col = (sampling_col * BIO) * basis
     BEM_gal = (sampling_gal * BIO) * basis
     quad_qbf = QuadQBF(splinedegree)
@@ -46,6 +46,6 @@ function test_helmholtz()
     z_col = eval_field(BEM_col, density_col, point)
     @test abs(z_col-z_exact) / abs(z_exact) < 1e-4
 
-    z_gal = IE.eval_field(BEM_gal, density_gal, point)
+    z_gal = eval_field(BEM_gal, density_gal, point)
     @test abs(z_gal - z_exact) / abs(z_exact) < 1e-5
 end
