@@ -78,11 +78,15 @@ struct QuadQBF{T} <: QuadratureStrategy
 end
 
 QuadQBF(args...; options...) = QuadQBF{Float64}(args...; options...)
+QuadQBF(coef::AbstractArray{T}, args...; options...) where {T} = QuadQBF{T}(coef, args...; options...)
 QuadQBF{T}(n::Int = 1; oversamplingfactor = 2) where {T} =
     QuadQBF{T}(n, oversamplingfactor*(n+1))
+QuadQBF{T}(coef::AbstractVector; oversamplingfactor = 2) where {T} =
+    QuadQBF{T}(coef, oversamplingfactor*length(coef)-1)
 
-function QuadQBF{T}(n::Int, M::Int) where {T}
-    coef = bspline_refinable_coefficients(n, T)
+QuadQBF{T}(n::Int, M::Int) where {T} = QuadQBF{T}(bspline_refinable_coefficients(n, T), M)
+
+function QuadQBF{T}(coef::AbstractVector, M::Int) where {T}
     x, w = refinable_quadrature(coef, M)
     QuadQBF{T}(coef, -(length(coef)-one(T))/2, (length(coef)-one(T))/2, x, w)
 end

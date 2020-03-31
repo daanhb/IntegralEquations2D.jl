@@ -1,5 +1,12 @@
 # A collection of polygon domains
 
+export Rectangle,
+    RegularPolygon,
+    EquilateralTriangle,
+    Square,
+    Pentagon,
+    Hexagon
+
 # We first define an open line segment, this represents the side of a polygon
 # given in counter clockwise order.
 
