@@ -31,3 +31,11 @@ eval_kernel(op::BoundaryIntegralOperator, x, y) =
 measure(op::BoundaryIntegralOperator) = JacobianMeasure(parameterization(op))
 
 singularity(op::BoundaryIntegralOperator) = singularity(kernel(op))
+
+export op_apply
+"Apply the integral operator to the given density function and evaluate at the point t."
+function op_apply(op::BoundaryIntegralOperator, density, t)
+    μ = measure(op)
+    integrand = y -> eval_kernel(op, t, y) * density(y) * unsafe_weight(μ, y)
+    DomainIntegrals.integral(QuadAdaptive(), integrand, parameterdomain(op), LogPointSingularity(t))
+end
