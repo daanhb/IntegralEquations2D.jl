@@ -7,17 +7,17 @@ hh_slp(x, y, wavenumber) = im * besselh0(wavenumber*norm(x-y)) / 4
 
 "Evaluate the Helmholtz 2D double layer potential kernel"
 hh_dlp(x, y, wavenumber, normal_y, z = norm(x-y)) =
-    (normal_y' * (x-y)) * im * wavenumber/4 * besselh1(wavenumber*z) / z
+    -(normal_y' * (x-y)) * im * wavenumber/4 * besselh1(wavenumber*z) / z
 
 "Diagonal limiting value of the Helmholtz 2D double layer potential kernel"
 function hh_dlp_limit(x, y, wavenumber, normal_y, grad_y, grad_d_y)
-    (grad_d_y[1] * grad_y[2] - grad_y[1] * grad_d_y[2]) / (4*norm(grad_y)^3*pi)
+    -(grad_d_y[1] * grad_y[2] - grad_y[1] * grad_d_y[2]) / (4*norm(grad_y)^3*pi)
 end
 
 "Evaluate the Helmholtz 2D double layer potential kernel"
 function hh_dlp_kernel(x, y, tau, wavenumber, param)
     z = norm(x-y)
-    if abs(z) < 100*eps(eltype(x))
+    if abs(z) > 100*eps(eltype(x))
         hh_dlp(x, y, wavenumber, normal(param, tau), z)
     else
         # Evaluate the limiting value
