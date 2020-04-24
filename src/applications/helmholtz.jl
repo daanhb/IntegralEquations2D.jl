@@ -11,7 +11,7 @@ hh_dlp(x, y, wavenumber, normal_y, z = norm(x-y)) =
 
 "Diagonal limiting value of the Helmholtz 2D double layer potential kernel"
 function hh_dlp_limit(x, y, wavenumber, normal_y, grad_y, grad_d_y)
-    -(grad_d_y[1] * grad_y[2] - grad_y[1] * grad_d_y[2]) / (4*norm(grad_y)^3*pi)
+    -(grad_d_y[1] * grad_y[2] - grad_y[1] * grad_d_y[2]) / (4*norm(grad_y)^3*pi) +0im
 end
 
 "Evaluate the Helmholtz 2D double layer potential kernel"

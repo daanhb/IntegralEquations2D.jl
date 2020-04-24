@@ -57,7 +57,7 @@ function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, s
 end
 
 function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
-        domain1::PeriodicInterval, domain2::UnitInterval)
+        domain1::PeriodicInterval, domain2::AbstractInterval)
     sum(doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing, d1, domain2)
             for d1 in elements(domain1))
 end

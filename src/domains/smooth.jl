@@ -16,6 +16,7 @@ Kite(a::Integer) = Kite{float(typeof(a))}(a)
 indomain(x, ::Kite) = error("Don't know how to evaluate indomain for a kite.")
 
 
+using BasisFunctions: subeltype
 
 """
 Smooth parameterization of the kite-shaped domain, mapping from `[0,1)]` to the kite.
