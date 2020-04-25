@@ -47,6 +47,8 @@ const Vec3{T} = SVector{3,T}
 codomaintype = BasisFunctions.codomaintype
 support = BasisFunctions.support
 
+include("util/common.jl")
+
 include("domains/param.jl")
 include("domains/polygons.jl")
 include("domains/smooth.jl")

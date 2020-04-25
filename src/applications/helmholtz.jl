@@ -57,9 +57,9 @@ BasisFunctions.name(kernel::Helmholtz_SLP_2D) = "2D Helmholtz single layer poten
     kernel(x, tau, param, applymap(param, tau))
 (kernel::Helmholtz_SLP_2D)(x, tau, param, y) = hh_slp(x, y, wavenumber(kernel))
 
-is_symmetric(k::Helmholtz_SLP_2D) = true
+is_symmetric(::Helmholtz_SLP_2D) = true
 
-singularity(k::Helmholtz_SLP_2D) = LogDiagonalSingularity()
+singularity(::Helmholtz_SLP_2D) = LogDiagonalSingularity()
 
 
 export Helmholtz_DLP_2D
@@ -82,7 +82,7 @@ BasisFunctions.name(kernel::Helmholtz_DLP_2D) = "2D Helmholtz double layer poten
 (kernel::Helmholtz_DLP_2D)(x, tau, param, y) =
     hh_dlp_kernel(x, y, tau, wavenumber(kernel), param)
 
-is_symmetric(k::Helmholtz_DLP_2D) = false
+is_symmetric(::Helmholtz_DLP_2D) = false
 
 # The kernel is continuous but its derivative is singular
-singularity(k::Helmholtz_DLP_2D) = LogDiagonalSingularity()
+singularity(::Helmholtz_DLP_2D) = LogDiagonalSingularity()
