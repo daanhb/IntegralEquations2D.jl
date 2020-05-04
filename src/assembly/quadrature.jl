@@ -24,7 +24,7 @@ function projectionintegral(qs, f, dict, idx, measure, sing, domain)
         sum(projectionintegral(qs, f, dict, idx, measure, sing, el) for el in elements(domain))
     else
         integrand = t -> f(t)*unsafe_eval_element(dict, idx, t)*unsafe_weight(measure, t)
-        DomainIntegrals.integral(qs, integrand, domain, sing)
+        integral(qs, integrand, domain, sing)
     end
 end
 
@@ -45,9 +45,9 @@ doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing = NoS
 
 function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
             domain1::AbstractInterval, domain2::AbstractInterval)
-    integrand = t -> f(t[1],t[2])*unsafe_eval_element(dict1, idx1, t[1])*conj(unsafe_eval_element(dict2,idx2, t[2]))*
+    integrand = t -> f(t[2],t[1])*unsafe_eval_element(dict1, idx1, t[1])*conj(unsafe_eval_element(dict2,idx2, t[2]))*
         unsafe_weight(measure1, t[1])*unsafe_weight(measure2, t[2])
-    DomainIntegrals.integral(integrand, domain1 × domain2, sing)
+    integral(integrand, domain1 × domain2, sing)
 end
 
 function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
@@ -60,6 +60,12 @@ function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, s
         domain1::PeriodicInterval, domain2::AbstractInterval)
     sum(doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing, d1, domain2)
             for d1 in elements(domain1))
+end
+
+function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
+        domain1::AbstractInterval, domain2::PeriodicInterval)
+    sum(doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing, domain1, d2)
+            for d2 in elements(domain2))
 end
 
 
@@ -122,7 +128,7 @@ function qbf_quadrature2(f, dict1, idx1, measure1, domain1, dict2, idx2, measure
         t1 = mapx(qbf_x[i], qbf_a, qbf_b, a1, b1)
         for j = 1:length(qbf_x)
             t2 = mapx(qbf_x[j], qbf_a, qbf_b, a2, b2)
-            z += qbf_w[i] * qbf_w[j] * f(t1,t2) * unsafe_weight(measure1, t1) * unsafe_weight(measure2, t2)
+            z += qbf_w[i] * qbf_w[j] * f(t2,t1) * unsafe_weight(measure1, t1) * unsafe_weight(measure2, t2)
         end
     end
     z * sqrt((b1-a1)*(b2-a2)) / (qbf_b-qbf_a)
