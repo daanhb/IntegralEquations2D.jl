@@ -13,7 +13,6 @@ using QuadGK, HCubature, FastGaussQuadrature,
 import DomainSets:
     Domain,
     EuclideanDomain,
-    AbstractMap,
     applymap,
     jacobian,
     gradient,

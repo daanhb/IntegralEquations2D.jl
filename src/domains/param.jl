@@ -1,7 +1,9 @@
 
-abstract type Parameterization{S,T} <: AbstractMap{S,T} end
+abstract type Parameterization{T} <: Map{T} end
 
-jacobian(m::DomainSets.UnitCircleMap{S,T}) where {S,T} = one(S)
+gradientnorm(m::AbstractMap, t) = norm(gradient(m, t))
+
+gradientnorm(m::DomainSets.UnitCircleMap{T}, t) where {T} = one(T)
 
 export normal
 "Evaluate the normal of the parameterized domain at the given point."

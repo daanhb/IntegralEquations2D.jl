@@ -21,15 +21,15 @@ using BasisFunctions: subeltype
 """
 Smooth parameterization of the kite-shaped domain, mapping from `[0,1)]` to the kite.
 """
-struct KiteMap{S,T} <: Parameterization{S,T}
+struct KiteMap{T} <: Parameterization{T}
     a   ::  Int       # a parameter
 end
 
 hasparameterization(d::Kite) = true
-parameterization(d::Kite) = KiteMap{subeltype(d),eltype(d)}(d.a)
+parameterization(d::Kite{T}) where T = KiteMap{T}(d.a)
 
-domain(d::KiteMap{S}) where {S} = Interval{:closed,:open,S}(0, 1)
-image(m::KiteMap{S}) where {S} = Kite{S}(m.a)
+domain(d::KiteMap{T}) where T = Interval{:closed,:open,T}(0, 1)
+image(m::KiteMap{T}) where T = Kite{T}(m.a)
 
 function applymap(m::KiteMap, t)
     b = 2*convert(domaintype(m), pi)
@@ -46,7 +46,6 @@ function gradient_derivative(m::KiteMap, t)
     SVector(b^2*sin(b*t)+(m.a*b)^2*cos(m.a*b*t), -b^2*cos(b*t))
 end
 
-jacobian(m::KiteMap, t) = norm(gradient(m, t))
 
 
 ## An ellipse
@@ -72,16 +71,16 @@ indomain(x, d::Ellipse) = ((x[1]-d.center[1])/d.radius[1])^2 + ((x[2]-d.center[2
 """
 Smooth parameterization of an ellipse, mapping from `[0,1)]`.
 """
-struct EllipseMap{S,T} <: Parameterization{S,T}
-    center  ::  SVector{2,S}        # center of the ellipse
-    radius  ::  SVector{2,S}        # (radius1,radius2)
+struct EllipseMap{T} <: Parameterization{T}
+    center  ::  SVector{2,T}        # center of the ellipse
+    radius  ::  SVector{2,T}        # (radius1,radius2)
 end
 
 hasparameterization(d::Ellipse) = true
-parameterization(d::Ellipse{T}) where {T} = EllipseMap{T,SVector{2,T}}(d.center, d.radius)
+parameterization(d::Ellipse) = EllipseMap(d.center, d.radius)
 
-domain(m::EllipseMap{S}) where {S} = Interval{:closed,:open,S}(0, 1)
-image(m::EllipseMap{S}) where {S} = Ellipse{S}(m.center, m.radius)
+domain(m::EllipseMap{T}) where T = Interval{:closed,:open,T}(0, 1)
+image(m::EllipseMap) = Ellipse(m.center, m.radius)
 
 function applymap(m::EllipseMap, t)
     b = 2*convert(domaintype(m), pi)
@@ -98,7 +97,6 @@ function gradient_derivative(m::EllipseMap, t)
     SVector(m.radius[1]*b^2*cos(b*t),  m.radius[2]*b^2*sin(b*t))
 end
 
-jacobian(m::EllipseMap, t) = norm(gradient(m, t))
 
 # # function normal{T}(b::Ellipse{T}, t)
 # #     n = Vec2{T}(b.radius2 * cos(2*T(pi)*t), b.radius1 * sin(2*T(pi)*t))

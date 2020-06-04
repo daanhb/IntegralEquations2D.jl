@@ -103,7 +103,7 @@ function distance(domain1::PeriodicInterval, domain2::PeriodicInterval)
     period = width(domain1.periodicdomain)
     sub1 = domain1.subdomain
     sub2 = domain2.subdomain
-    min(distance(sub1, sub2), distance(sub1+period,sub2), distance(sub1-period,sub2))
+    min(distance(sub1, sub2), distance(sub1 .+ period,sub2), distance(sub1 .- period,sub2))
 end
 
 distance(domain1::UnitInterval, domain2::PeriodicInterval) = zero(eltype(domain1))

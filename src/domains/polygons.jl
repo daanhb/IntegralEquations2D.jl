@@ -29,16 +29,16 @@ indomain(x, ::OpenLineSegment) = error("Don't know how to evaluate indomain for 
 """
 Parameterization of the open line segment domain, mapping from `[0,1]` to the open line segment.
 """
-struct OpenLineSegmentMap{S,T} <: Parameterization{S,T}
-    A   ::  SVector{2,S}       # Two endpoints
-    B   ::  SVector{2,S}
+struct OpenLineSegmentMap{T} <: Parameterization{T}
+    A   ::  SVector{2,T}       # Two endpoints
+    B   ::  SVector{2,T}
 end
 
 hasparameterization(d::OpenLineSegment) = true
-parameterization(d::OpenLineSegment{T}) where T = OpenLineSegmentMap{T,SVector{2,T}}(d.A, d.B)
+parameterization(d::OpenLineSegment) = OpenLineSegmentMap(d.A, d.B)
 
-domain(m::OpenLineSegmentMap{S}) where S = Interval{:closed,:closed,S}(0, 1)
-image(m::OpenLineSegmentMap{S}) where S = OpenLineSegment{S}(m.A, m.B)
+domain(m::OpenLineSegmentMap{T}) where T = zero(T)..one(T)
+image(m::OpenLineSegmentMap) = OpenLineSegment(m.A, m.B)
 
 _ols_applymap(A::SVector{2,T}, B::SVector{2,T}, t) where T =
     (1 - t)*A + t*B
@@ -52,8 +52,6 @@ function _ols_gradient(A::SVector{2,T}, B::SVector{2,T}, t) where T
     SVector(tu[2], tu[1])
 end
 gradient(m::OpenLineSegmentMap, t) = _ols_gradient(A, B, t)
-
-jacobian(m::OpenLineSegmentMap, t) = norm(gradient(m, t))
 
 # Small utility function that probably is somewhere in the standard library
 # Map a range to a unit range
@@ -86,16 +84,16 @@ indomain(x::SVector{2,T}, d::Rectangle{T}) where T =
 """
 Parameterization of a rectangular domain, mapping from `[0,1)` to the rectangle.
 """
-struct RectangleMap{S,T} <: Parameterization{S,T}
-    ll :: SVector{2,S}
-    ur :: SVector{2,S}
+struct RectangleMap{T} <: Parameterization{T}
+    ll :: SVector{2,T}
+    ur :: SVector{2,T}
 end
 
 hasparameterization(d::Rectangle) = true
-parameterization(d::Rectangle{T}) where T = RectangleMap{T,SVector{2,T}}(d.ll, d.ur)
+parameterization(d::Rectangle) = RectangleMap(d.ll, d.ur)
 
-domain(m::RectangleMap{S}) where S = Interval{:closed,:open,S}(0, 1)
-image(m::RectangleMap{S}) where S = Rectangle{S}(m.ll, m.ur)
+domain(m::RectangleMap{T}) where T = Interval{:closed,:open,T}(0, 1)
+image(m::RectangleMap) = Rectangle(m.ll, m.ur)
 
 function _getpart(m::RectangleMap, t)
     w, h = m.ur[1] - m.ll[1], m.ur[2] - m.ll[2]
@@ -123,7 +121,6 @@ function gradient(m::RectangleMap, t)
     _ols_gradient(s, e, _map2ur(t, st, et))
 end
 
-jacobian(m::RectangleMap, t) = norm(gradient(m, t))
 
 
 # Regular polygons
@@ -160,18 +157,17 @@ end
 """
 Parameterization a regular polygon domain, mapping from `[0,1)` to the polygon.
 """
-struct RegularPolygonMap{S,T} <: Parameterization{S,T}
+struct RegularPolygonMap{T} <: Parameterization{T}
     n      :: Int          # number of verticies
-    center :: SVector{2,S} # center of the polygon
-    radius :: S            # the radius of the enclosing circle
+    center :: SVector{2,T} # center of the polygon
+    radius :: T            # the radius of the enclosing circle
 end
 
 hasparameterization(d::RegularPolygon) = true
-parameterization(d::RegularPolygon{T}) where T =
-    RegularPolygonMap{T,SVector{2,T}}(d.n, d.center, d.radius)
+parameterization(d::RegularPolygon) = RegularPolygonMap(d.n, d.center, d.radius)
 
-domain(m::RegularPolygonMap{S}) where S = Interval{:closed,:open,S}(0, 1)
-image(m::RegularPolygonMap{S}) where S = RegularPolygon{S}(m.n, m.center, m.radius)
+domain(m::RegularPolygonMap{T}) where T = Interval{:closed,:open,T}(0, 1)
+image(m::RegularPolygonMap) = RegularPolygon(m.n, m.center, m.radius)
 
 function _getpart(m::RegularPolygonMap, t)
     Δt, Δθ = 1 / m.n, 2π / m.n
@@ -201,7 +197,6 @@ function gradient(m::RegularPolygonMap, t)
     _ols_gradient(s, e, _map2ur(t, st, et))
 end
 
-jacobian(m::RegularPolygonMap, t) = norm(gradient(m, t))
 
 
 # A collection of regular polygons
