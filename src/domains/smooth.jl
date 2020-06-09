@@ -61,7 +61,7 @@ end
 
 Ellipse() = Ellipse{Float64}()
 
-Ellipse(center::SVector{2,T}, radius::SVector{2,T}) where {T} = Ellipse{T}(center, radius)
+Ellipse(center::SVector{2,T}, radius::SVector{2,S}) where {S,T} = Ellipse{promote_type(S,T)}(center, radius)
 
 Ellipse(x, y, radius1, radius2) = Ellipse(SVector(x, y), SVector(radius1, radius2))
 
