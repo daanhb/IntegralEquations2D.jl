@@ -1,7 +1,7 @@
 
 function test_helmholtz(T = Float64, N = 128)
     wavenumber = T(5)
-    M = N
+    M = 2N
     splinedegree = 1
     obstacle = Kite{T}(2)
     direction = SVector(one(T), zero(T))
@@ -10,7 +10,14 @@ function test_helmholtz(T = Float64, N = 128)
     paramdomain = domain(param)
     SingleLayerPotential = Helmholtz_SLP_2D(wavenumber)
     BIO = BoundaryIntegralOperator(SingleLayerPotential, obstacle, param)
-    basis = complex(BSplineTranslatesBasis(N, splinedegree, leftendpoint(paramdomain), rightendpoint(paramdomain)))
+    if paramdomain == Interval{:closed,:open,T}(0,1)
+        basis = complex(BSplineTranslatesBasis{T}(N, splinedegree))
+    else
+        a, b = extrema(paramdomain)
+        m = interval_map(a, b, 0, 1)
+        splines = BSplineTranslatesBasis{T}(N, splinedegree)
+        basis = complex(MappedDict(splines, m))
+    end
     basis_obstacle = BasisFunctions.ParamDict(basis, param, obstacle)
     coll_points = PeriodicEquispacedGrid(M, paramdomain)
     coll_points_obstacle = mapped_grid(coll_points, param)
@@ -21,14 +28,16 @@ function test_helmholtz(T = Float64, N = 128)
     bcond_field = make_boundary_condition_planewave(wavenumber, direction, amplitude)
     BEM_col = (sampling_col * BIO) * basis
     BEM_gal = (sampling_gal * BIO) * basis
-    quad_qbf = QuadQBF(splinedegree)
-    quad_gk = QuadAdaptive()
+    quad_qbf = QuadQBF(splinedegree; oversamplingfactor=2)
+    quad_adaptive = QuadAdaptive()
+    bemquad_qbf_graded = BEMQuadQBF_Graded(quad_qbf)
+    bemquad_qbf_adaptive = BEMQuadQBF_Adaptive(quad_qbf, quad_adaptive)
 
-    z1 = compute_BEM_entry(BEM_col, 2, 2, quad_qbf)
-    @test abs(z1 - (0.2296280626495274 + 0.11152548885226357im)) < 1e-3
+    z1 = compute_BEM_entry(BEM_col, 2, 2, bemquad_qbf_graded)
+    @test abs(z1 - (0.19220429036977982 + 0.11128991068138182im)) < 1e-3
 
-    assemble!(BEM_col, quad_qbf)
-    assemble!(BEM_gal, quad_qbf)
+    assemble!(BEM_col, bemquad_qbf_graded)
+    assemble!(BEM_gal, bemquad_qbf_adaptive)
     A_col = copy(matrix(BEM_col))
     b_col = sampling_col * bcond
     coef_col = A_col \ b_col
@@ -42,7 +51,7 @@ function test_helmholtz(T = Float64, N = 128)
     z_exact = bcond_field(point...)
 
     z_col = eval_field(BEM_col, density_col, point)
-    @test abs(z_col-z_exact) / abs(z_exact) < 1e-4
+    @test abs(z_col-z_exact) / abs(z_exact) < 1e-3
 
     z_gal = eval_field(BEM_gal, density_gal, point)
     @test abs(z_gal - z_exact) / abs(z_exact) < 1e-5

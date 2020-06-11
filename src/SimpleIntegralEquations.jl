@@ -36,15 +36,11 @@ import DomainIntegrals:
     DiagonalSingularity,
     LogPointSingularity
 
-export
-    measure
+export measure
 
 const Vec2{T} = SVector{2,T}
 const Vec3{T} = SVector{3,T}
 
-# temporary ambiguity fix
-codomaintype = BasisFunctions.codomaintype
-support = BasisFunctions.support
 
 include("util/common.jl")
 

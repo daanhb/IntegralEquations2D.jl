@@ -1,4 +1,8 @@
 
+export BEMQuadAdaptive,
+    BEMQuadQBF_Adaptive,
+    BEMQuadQBF_Graded
+
 using CompactTranslatesDict:
     PeriodicInterval
 
@@ -6,26 +10,111 @@ using BasisFunctions:
     unsafe_eval_element,
     unsafe_weight
 
-# # A few routines for interoperability with pretty printing
-# BasisFunctions.hasstencil(q::QuadratureStrategy) = false
-# BasisFunctions.symbol(q::QuadratureStrategy) = "Quad"
-# BasisFunctions.iscomposite(q::QuadratureStrategy) = false
 
-import DomainIntegrals:
-    QuadratureStrategy, QuadAdaptive,
-    Q_quadgk, Q_hcubature
+using DomainIntegrals:
+    QuadratureStrategy,
+    QuadAdaptive,
+    Q_quadgk,
+    Q_hcubature,
+    UnitIntervalRule,
+    graded_rule_left,
+    graded_rule_right,
+    PointSingularity
 
-projectionintegral(qs, f, dict, idx, measure, sing = NoSingularity()) =
-    projectionintegral(qs, f, dict, idx, measure, sing, support(dict, idx))
+
+###########################################
+# Definition of BEM quadrature strategies
+###########################################
+
+"""
+A `BEMQuadratureStrategy` groups quadrature strategies (as used by `DomainIntegrals.jl`)
+for the regular, singular and nearly singular integrals corresponding to BEM matrix entries.
+
+A concrete type should implement `regular`, `singular` and `nearlysingular` to
+return the corresponding quadrature strategies.
+"""
+abstract type BEMQuadratureStrategy <: DomainIntegrals.QuadratureStrategy end
+
+# For DomainIntegral strategies, there is no difference between the three types
+regular(quad::QuadratureStrategy) = quad
+singular(quad::QuadratureStrategy) = quad
+nearlysingular(quad::QuadratureStrategy) = quad
 
 
-function projectionintegral(qs, f, dict, idx, measure, sing, domain)
-    if domain isa PeriodicInterval
-        sum(projectionintegral(qs, f, dict, idx, measure, sing, el) for el in elements(domain))
-    else
-        integrand = t -> f(t)*unsafe_eval_element(dict, idx, t)*unsafe_weight(measure, t)
-        integral(qs, integrand, domain, sing)
-    end
+
+"Generic adaptive quadrature for all BEM matrix entries."
+struct BEMQuadAdaptive{T} <: BEMQuadratureStrategy
+    adaptive    ::  QuadAdaptive{T}
+end
+
+regular(quad::BEMQuadAdaptive) = quad.adaptive
+singular(quad::BEMQuadAdaptive) = quad.adaptive
+nearlysingular(quad::BEMQuadAdaptive) = quad.adaptive
+
+# Accept the same arguments as the QuadAdaptive constructor of DomainIntegrals.jl
+BEMQuadAdaptive(args...) = BEMQuadAdaptive(QuadAdaptive(args...))
+BEMQuadAdaptive{T}(atol::Number, args...) where {T} = BEMQuadAdaptive{T}(QuadAdaptive{T}(atol, args...))
+
+
+"Combination of QBF and adaptive quadrature."
+struct BEMQuadQBF_Adaptive{T} <: BEMQuadratureStrategy
+    regular     ::  QuadQBF{T}
+    adaptive    ::  QuadAdaptive{T}
+end
+
+BEMQuadQBF_Adaptive(regular::QuadQBF{T}, args...) where {T} =
+    BEMQuadQBF_Adaptive(regular, QuadAdaptive{T}(args...))
+
+regular(quad::BEMQuadQBF_Adaptive) = quad.regular
+singular(quad::BEMQuadQBF_Adaptive) = quad.adaptive
+nearlysingular(quad::BEMQuadQBF_Adaptive) = quad.adaptive
+
+splineorder(q::BEMQuadQBF_Adaptive) = splineorder(q.regular)
+
+
+"Combination of QBF and graded quadrature."
+struct BEMQuadQBF_Graded{T} <: BEMQuadratureStrategy
+    regular         ::  QuadQBF{T}
+    graded_left     ::  UnitIntervalRule{T}
+    graded_right    ::  UnitIntervalRule{T}
+end
+
+BEMQuadQBF_Graded(regular::QuadQBF{T}, σ = T(3)/10, n = 1, μ = one(T)/2, args...) where {T} =
+    BEMQuadQBF_Graded(regular, graded_rule_left(σ, n, μ, args...), graded_rule_right(σ, n, μ, args...))
+
+regular(quad::BEMQuadQBF_Graded) = quad.regular
+singular(quad::BEMQuadQBF_Graded) = quad
+nearlysingular(quad::BEMQuadQBF_Graded) = quad
+
+splineorder(q::BEMQuadQBF_Graded) = splineorder(q.regular)
+
+
+"A generic combination of BEM quadrature strategies."
+struct BEMQuad <: BEMQuadratureStrategy
+    regular
+    singular
+    nearlysingular
+end
+
+regular(quad::BEMQuad) = quad.regular
+singular(quad::BEMQuad) = quad.singular
+nearlysingular(quad::BEMQuad) = quad.nearlysingular
+
+
+########################################################################
+# Definition of projectionintegral and doubleprojectionintegral
+########################################################################
+
+
+function projectionintegral(qs, f, dict, idx, measure, sing = NoSingularity(), domain = support(dict, idx))
+    integrand = t -> f(t)*unsafe_eval_element(dict, idx, t)*unsafe_weight(measure, t)
+    integral(qs, integrand, domain, sing)
+end
+
+function projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain)
+    # For QBF we don't include the basis function
+    integrand = t -> f(t)*unsafe_weight(measure, t)
+    integral(qs, integrand, domain, sing)*sqrt(length(dict))
 end
 
 # Teach DomainIntegrals how to evaluate on a PeriodicInterval
@@ -38,6 +127,72 @@ function DomainIntegrals.quadrature_d(qs, integrand, domain::PeriodicInterval, m
     end
 end
 
+# Special treatment for QBF quadrature: don't split the domain, instead periodize the integrand
+function DomainIntegrals.quadrature_d(qs::QuadQBF, integrand, domain::PeriodicInterval, measure, sing)
+    if numelements(domain) == 1
+        DomainIntegrals.quadrature_d(qs, integrand, element(domain, 1), measure, sing)
+    else
+        # only periodize when crossing the boundary
+        A, B = extrema(domain.periodicdomain)
+        DomainIntegrals.quadrature_d(qs, t -> integrand(A+mod(t-A,B-A)), domain.subdomain, measure, sing)
+    end
+end
+
+# Teach DomainIntegrals how to split a PeriodicInterval
+function DomainIntegrals.splitdomain_point(x, domain::PeriodicInterval)
+    if numelements(domain) == 1
+        DomainIntegrals.splitdomain_point(x, element(domain, 1))
+    else
+        vcat(DomainIntegrals.splitdomain_point(x, element(domain, 1))..., DomainIntegrals.splitdomain_point(x, element(domain, 2))...)
+    end
+end
+
+
+"Split a domain (originating from a spline) in subsets on which the spline is smooth."
+piecewisedomains(domain::MappedDomain, order) = map_domain.(Ref(inverse_map(domain)), piecewisedomains(superdomain(domain), order))
+function piecewisedomains(domain::AbstractInterval, order)
+    a, b = extrema(domain)
+    h = (b-a)/(order+1)
+    [a+i*h..a+(i+1)*h for i in 0:order]
+end
+function piecewisedomains(domain::PeriodicInterval, order)
+    realdomain = domain.subdomain
+    periodicdomain = domain.periodicdomain
+    a, b = extrema(realdomain)
+    h = (b-a)/(order+1)
+    segments = [a+i*h..a+(i+1)*h for i in 0:order]
+    vcat([collect(elements(PeriodicInterval(s, periodicdomain))) for s in segments]...)
+end
+
+function projectionintegral(qs::BEMQuadQBF_Graded, f, dict, idx, measure, sing, domain)
+    domains = piecewisedomains(support(dict, idx), splineorder(qs))
+    sum(projectionintegral(qs, f, dict, idx, measure, sing, d) for d in domains)
+end
+
+function leftofsingularity(x, domain, support)
+    L = width(support)
+    if x - leftendpoint(domain) > L/2
+        x = x - L
+    elseif rightendpoint(domain) - x > L/2
+        x = x + L
+    end
+    leftendpoint(domain) < x
+end
+
+
+function projectionintegral(qs::BEMQuadQBF_Graded, f, dict, idx, measure, sing::PointSingularity, domain::AbstractInterval)
+    x = DomainIntegrals.point(sing)
+    domains = DomainIntegrals.splitdomain_point(x, domain)
+    z = zero(typeof(f(x)))
+    for d in domains
+        if leftofsingularity(x, d, support(dict))
+            z += projectionintegral(qs.graded_right, f, dict, idx, measure, sing, d)
+        else
+            z += projectionintegral(qs.graded_left, f, dict, idx, measure, sing, d)
+        end
+    end
+    z
+end
 
 
 doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing = NoSingularity()) =
@@ -47,7 +202,7 @@ function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, s
             domain1::AbstractInterval, domain2::AbstractInterval)
     integrand = t -> f(t[2],t[1])*unsafe_eval_element(dict1, idx1, t[1])*conj(unsafe_eval_element(dict2,idx2, t[2]))*
         unsafe_weight(measure1, t[1])*unsafe_weight(measure2, t[2])
-    integral(integrand, domain1 × domain2, sing)
+    integral(qs, integrand, domain1 × domain2, sing)
 end
 
 function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
@@ -69,98 +224,13 @@ function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, s
 end
 
 
-export QuadQBF
-"""
-QuadQBF uses specialized quadrature routines that incorporate the basis function of the discretization
-into their weight function. This means only evaluation of the Green's function are required.
-The evaluations are equispaced and can be shared for neighbouring elements in the discretization matrix.
-"""
-struct QuadQBF{T} <: QuadratureStrategy
-    coef    ::  Array{T,1}  #   Coefficients of the two-scale relation
-    a       ::  T
-    b       ::  T
-    x       ::  Array{T,1}  #   1d quadrature points
-    w       ::  Array{T,1}  #   1d quadrature weights
-end
 
-QuadQBF(args...; options...) = QuadQBF{Float64}(args...; options...)
-QuadQBF(coef::AbstractArray{T}, args...; options...) where {T} = QuadQBF{T}(coef, args...; options...)
-QuadQBF{T}(n::Int = 1; oversamplingfactor = 2) where {T} =
-    QuadQBF{T}(n, oversamplingfactor*(n+1))
-QuadQBF{T}(coef::AbstractVector; oversamplingfactor = 2) where {T} =
-    QuadQBF{T}(coef, oversamplingfactor*length(coef)-1)
-
-QuadQBF{T}(n::Int, M::Int) where {T} = QuadQBF{T}(bspline_refinable_coefficients(n, T), M)
-
-function QuadQBF{T}(coef::AbstractVector, M::Int) where {T}
-    x, w = refinable_quadrature(coef, M)
-    QuadQBF{T}(coef, -(length(coef)-one(T))/2, (length(coef)-one(T))/2, x, w)
-end
-
-leftpoint(q::QuadQBF) = q.a
-rightpoint(q::QuadQBF) = q.b
-
-quad_x(q::QuadQBF) = q.x
-quad_w(q::QuadQBF) = q.w
-
-
-
-# Map a point x from the interval [a,b] linearly to the interval [c,d]
-mapx(x, a, b, c, d) = c + (x-a)/(b-a)*(d-c)
-
-function qbf_quadrature(f, dict, idx, measure, domain, qbf_a, qbf_b, qbf_x, qbf_w)
-    a, b = extrema(domain)
-    T = typeof(f(a))
-    z = zero(T)
-    for i = 1:length(qbf_x)
-        t = mapx(qbf_x[i], qbf_a, qbf_b, a, b)
-        z += qbf_w[i] * f(t) * unsafe_weight(measure, t)
-    end
-    z * sqrt((b-a) / (qbf_b-qbf_a))
-end
-
-function qbf_quadrature2(f, dict1, idx1, measure1, domain1, dict2, idx2, measure2, domain2, qbf_a, qbf_b, qbf_x, qbf_w)
-    a1, b1 = extrema(domain1)
-    a2, b2 = extrema(domain2)
-    T = typeof(f(a1,a2))
-    z = zero(T)
-    for i = 1:length(qbf_x)
-        t1 = mapx(qbf_x[i], qbf_a, qbf_b, a1, b1)
-        for j = 1:length(qbf_x)
-            t2 = mapx(qbf_x[j], qbf_a, qbf_b, a2, b2)
-            z += qbf_w[i] * qbf_w[j] * f(t2,t1) * unsafe_weight(measure1, t1) * unsafe_weight(measure2, t2)
-        end
-    end
-    z * sqrt((b1-a1)*(b2-a2)) / (qbf_b-qbf_a)
-end
-
-
-# We only use QBF quadrature for nonsingular integrals
-projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing::NoSingularity, domain::AbstractInterval) =
-    qbf_quadrature(f, dict, idx, measure, domain,
-        leftpoint(qs), rightpoint(qs), quad_x(qs), quad_w(qs))
-
-# In case of a singularity, we revert to adaptive quadrature
-projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain) =
-    projectionintegral(QuadAdaptive(), f, dict, idx, measure, sing, domain)
-
-function projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing::NoSingularity, domain::PeriodicInterval)
-    if numelements(domain) == 1
-        z = projectionintegral(qs, f, dict, idx, measure, sing, element(domain,1))
-    else
-        A, B = extrema(domain.periodicdomain)
-        z = projectionintegral(qs, t -> f(A+mod(t-A,B-A)), dict, idx, measure, sing, domain.subdomain)
-    end
-    z
-end
-
-
-doubleprojection(qs::QuadQBF, f, dict1, idx1, measure1, dict2, idx2, measure2, sing::NoSingularity,
+doubleprojection(qs::QuadQBF, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
             domain1::AbstractInterval, domain2::AbstractInterval) =
         qbf_quadrature2(f, dict1, idx1, measure1, domain1, dict2, idx2, measure2, domain2,
-            leftpoint(qs), rightpoint(qs), quad_x(qs), quad_w(qs))
+            leftpoint(qs), rightpoint(qs), points(qs), weights(qs))
 
-function doubleprojection(qs::QuadQBF, f, dict1, idx1, measure1, dict2, idx2, measure2, sing::NoSingularity,
+function doubleprojection(qs::QuadQBF, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
         domain1::PeriodicInterval, domain2::PeriodicInterval)
 
     A1, B1 = extrema(domain1.periodicdomain)
@@ -168,17 +238,3 @@ function doubleprojection(qs::QuadQBF, f, dict1, idx1, measure1, dict2, idx2, me
     f2 = t -> f(A1+mod(t[1]-A1,B1-A1), A2+mod(t[2]-A2,B2-A2))
     doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing, domain1.subdomain, domain2.subdomain)
 end
-
-
-
-struct QuadGaussLegendre{T} <: QuadratureStrategy
-    w   ::  Array{T,1}
-    x   ::  Array{T,1}
-
-    function QuadGaussLegendre{T}(n::Int) where {T}
-        w, x = gausslegendre(n)
-        new(x, w)
-    end
-end
-
-QuadGaussLegendre(n::Int) = QuadGaussLegendre{Float64}(n::Int)
