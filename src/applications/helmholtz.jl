@@ -3,7 +3,13 @@ besselh0(z) = besselj0(z) + im*bessely0(z)
 besselh1(z) = besselj1(z) + im*bessely1(z)
 
 "Evaluate the Helmholtz 2D single layer potential kernel"
-hh_slp(x, y, wavenumber) = im * besselh0(wavenumber*norm(x-y)) / 4
+function hh_slp(x, y, wavenumber)
+    if norm(x-y)<eps(Float64)
+        return 0.0*im
+    else
+        return im * besselh0(wavenumber*norm(x-y)) / 4
+    end
+end
 
 "Evaluate the Helmholtz 2D double layer potential kernel"
 hh_dlp(x, y, wavenumber, normal_y, z = norm(x-y)) =
