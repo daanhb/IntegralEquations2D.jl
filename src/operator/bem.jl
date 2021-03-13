@@ -44,15 +44,26 @@ Base.:*(op::SampledIntegralOperator, dict::Dictionary) =
     DenseBEMOperator(dict, samplingoperator(op), integraloperator(op))
 
 "Assemble the dense BEM matrix."
-function assemble!(op::DenseBEMOperator, quad = op.quad, A = op.A; verbose = false)
-    for i in 1:size(A, 1)
-        verbose && println("Assembly: row $i")
-        for j in 1:size(A,2)
-            A[i,j] = compute_BEM_entry(op, i, j, quad)
-        end
-    end
-    op.isassembled = true
-    A
+function assemble!(op::DenseBEMOperator, quad = op.quad, A = op.A; verbose = false, parallel = true)
+    if parallel==true
+		nthreads=Base.Threads.nthreads()
+		verbose && println("Assembly of BEM matrix with $nthreads threads")
+	    Threads.@threads for i in 1:size(A, 1)
+			verbose && println("Assembly: row $i")
+			for j in 1:size(A,2)
+		    	A[i,j] = compute_BEM_entry(op, i, j, quad)
+			end
+	    end
+	else
+	    for i in 1:size(A, 1)
+			verbose && println("Assembly: row $i")
+			for j in 1:size(A,2)
+		    	A[i,j] = compute_BEM_entry(op, i, j, quad)
+			end
+	    end
+	end
+	op.isassembled = true
+	A
 end
 
 BasisFunctions.matrix(A::DenseBEMOperator) =
