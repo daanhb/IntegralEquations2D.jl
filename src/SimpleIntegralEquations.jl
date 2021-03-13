@@ -9,6 +9,8 @@ using QuadGK, HCubature, FastGaussQuadrature,
     LinearAlgebra,
     RecipesBase
 
+import Base:
+    Threads
 
 import DomainSets:
     Domain,
