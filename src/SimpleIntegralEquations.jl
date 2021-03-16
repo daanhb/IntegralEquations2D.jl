@@ -35,8 +35,8 @@ import DomainIntegrals:
     Singularity,
     NoSingularity,
     CurveSingularity,
-    DiagonalSingularity,
-    LogPointSingularity
+    DiagonallySingular,
+    LogSingPoint
 
 export measure
 

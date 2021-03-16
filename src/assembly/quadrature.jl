@@ -8,7 +8,7 @@ using CompactTranslatesDict:
 
 using BasisFunctions:
     unsafe_eval_element,
-    unsafe_weight
+    unsafe_weightfun
 
 
 using DomainIntegrals:
@@ -107,13 +107,13 @@ nearlysingular(quad::BEMQuad) = quad.nearlysingular
 
 
 function projectionintegral(qs, f, dict, idx, measure, sing = NoSingularity(), domain = support(dict, idx))
-    integrand = t -> f(t)*unsafe_eval_element(dict, idx, t)*unsafe_weight(measure, t)
+    integrand = t -> f(t)*unsafe_eval_element(dict, idx, t)*unsafe_weightfun(measure, t)
     integral(qs, integrand, domain, sing)
 end
 
 function projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain)
     # For QBF we don't include the basis function
-    integrand = t -> f(t)*unsafe_weight(measure, t)
+    integrand = t -> f(t)*unsafe_weightfun(measure, t)
     integral(qs, integrand, domain, sing)*sqrt(length(dict))
 end
 
@@ -201,7 +201,7 @@ doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing = NoS
 function doubleprojection(qs, f, dict1, idx1, measure1, dict2, idx2, measure2, sing,
             domain1::AbstractInterval, domain2::AbstractInterval)
     integrand = t -> f(t[2],t[1])*unsafe_eval_element(dict1, idx1, t[1])*conj(unsafe_eval_element(dict2,idx2, t[2]))*
-        unsafe_weight(measure1, t[1])*unsafe_weight(measure2, t[2])
+        unsafe_weightfun(measure1, t[1])*unsafe_weightfun(measure2, t[2])
     integral(qs, integrand, domain1 × domain2, sing)
 end
 

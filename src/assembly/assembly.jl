@@ -61,7 +61,7 @@ function collocation_BEM_entry(x, ϕ_j, intop, quad, sing = singularity(intop))
 end
 
 collocation_singularity(x, sing) = sing
-collocation_singularity(x, sing::LogDiagonalSingularity) = LogPointSingularity(x)
+collocation_singularity(x, sing::LogDiagonallySingular) = LogSingPoint(x)
 
 singular_collocation_entry(quad, x, ϕ_j, intop, sing) =
     projectionintegral(singular(quad), y -> eval_kernel(intop, x, y),
@@ -124,7 +124,7 @@ function galerkin_BEM_entry(ϕ_i, ϕ_j, μ_projection, intop, quad, sing = singu
 end
 
 galerkin_singularity(sing) = sing
-galerkin_singularity(sing::LogDiagonalSingularity) = DiagonalSingularity()
+galerkin_singularity(sing::LogDiagonallySingular) = DiagonallySingular()
 
 singular_galerkin_BEM_entry(quad, sing, ϕ_i, μ_projection, ϕ_j, intop) =
     doubleprojection(singular(quad), (x,y) -> eval_kernel(intop, x, y),

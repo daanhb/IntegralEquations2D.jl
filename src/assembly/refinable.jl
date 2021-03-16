@@ -159,7 +159,7 @@ function qbf_quadrature(f, dict, idx, measure, domain, qbf_a, qbf_b, qbf_x, qbf_
     z = zero(T)
     for i = 1:length(qbf_x)
         t = mapx(qbf_x[i], qbf_a, qbf_b, a, b)
-        z += qbf_w[i] * f(t) * unsafe_weight(measure, t)
+        z += qbf_w[i] * f(t) * unsafe_weightfun(measure, t)
     end
     z * sqrt((b-a) / (qbf_b-qbf_a))
 end
@@ -173,7 +173,7 @@ function qbf_quadrature2(f, dict1, idx1, measure1, domain1, dict2, idx2, measure
         t1 = mapx(qbf_x[i], qbf_a, qbf_b, a1, b1)
         for j = 1:length(qbf_x)
             t2 = mapx(qbf_x[j], qbf_a, qbf_b, a2, b2)
-            z += qbf_w[i] * qbf_w[j] * f(t2,t1) * unsafe_weight(measure1, t1) * unsafe_weight(measure2, t2)
+            z += qbf_w[i] * qbf_w[j] * f(t2,t1) * unsafe_weightfun(measure1, t1) * unsafe_weightfun(measure2, t2)
         end
     end
     z * sqrt((b1-a1)*(b2-a2)) / (qbf_b-qbf_a)

@@ -1,12 +1,12 @@
 
 "A measure associated with a parameterization "
-struct ParameterizationMeasure{P,T} <: DomainIntegrals.Measure{T}
+struct ParameterizationMeasure{P,T} <: DomainIntegrals.Weight{T}
     param   ::  P
 end
 
 ParameterizationMeasure(param) = ParameterizationMeasure{typeof(param),eltype(domain(param))}(param)
 
-DomainIntegrals.unsafe_weight(p::ParameterizationMeasure, t) = gradientnorm(p.param, t)
+DomainIntegrals.unsafe_weightfun(p::ParameterizationMeasure, t) = gradientnorm(p.param, t)
 DomainIntegrals.support(p::ParameterizationMeasure) = domain(p.param)
 
 
@@ -36,6 +36,6 @@ export op_apply
 "Apply the integral operator to the given density function and evaluate at the point t."
 function op_apply(op::BoundaryIntegralOperator, density, t)
     μ = measure(op)
-    integrand = y -> eval_kernel(op, t, y) * density(y) * unsafe_weight(μ, y)
-    DomainIntegrals.integral(QuadAdaptive(), integrand, parameterdomain(op), LogPointSingularity(t))
+    integrand = y -> eval_kernel(op, t, y) * density(y) * unsafe_weightfun(μ, y)
+    DomainIntegrals.integral(QuadAdaptive(), integrand, parameterdomain(op), LogSingPoint(t))
 end

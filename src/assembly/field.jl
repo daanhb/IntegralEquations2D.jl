@@ -5,7 +5,7 @@ eval_field(A::BEMOperator, density::Expansion, x, quad = A.quad) =
     eval_field(integraloperator(A), density, x, quad)
 
 function eval_field(intop::BoundaryIntegralOperator, density::Expansion, x, quad)
-    integrand = t -> eval_kernel(intop, x, t) * unsafe_weight(measure(intop), t) * density(t)
+    integrand = t -> eval_kernel(intop, x, t) * unsafe_weightfun(measure(intop), t) * density(t)
     DomainIntegrals.integral(quad, integrand, support(density))
 end
 
