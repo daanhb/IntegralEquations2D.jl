@@ -118,23 +118,23 @@ function projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain)
 end
 
 # Teach DomainIntegrals how to evaluate on a PeriodicInterval
-function DomainIntegrals.quadrature_d(qs, integrand, domain::PeriodicInterval, measure, sing)
+function DomainIntegrals.integrate_domain(qs, integrand, domain::PeriodicInterval, measure, sing)
     if numelements(domain) > 1
-        IEs = DomainIntegrals.quadrature.(Ref(qs), Ref(integrand), elements(domain), Ref(measure), Ref(sing))
+        IEs = DomainIntegrals.integrate.(Ref(qs), Ref(integrand), elements(domain), Ref(measure), Ref(sing))
         DomainIntegrals.recombine_outcome(IEs)
     else
-        DomainIntegrals.quadrature_d(qs, integrand, element(domain,1), measure, sing)
+        DomainIntegrals.integrate_domain(qs, integrand, element(domain,1), measure, sing)
     end
 end
 
 # Special treatment for QBF quadrature: don't split the domain, instead periodize the integrand
-function DomainIntegrals.quadrature_d(qs::QuadQBF, integrand, domain::PeriodicInterval, measure, sing)
+function DomainIntegrals.integrate_domain(qs::QuadQBF, integrand, domain::PeriodicInterval, measure, sing)
     if numelements(domain) == 1
-        DomainIntegrals.quadrature_d(qs, integrand, element(domain, 1), measure, sing)
+        DomainIntegrals.integrate_domain(qs, integrand, element(domain, 1), measure, sing)
     else
         # only periodize when crossing the boundary
         A, B = extrema(domain.periodicdomain)
-        DomainIntegrals.quadrature_d(qs, t -> integrand(A+mod(t-A,B-A)), domain.subdomain, measure, sing)
+        DomainIntegrals.integrate_domain(qs, t -> integrand(A+mod(t-A,B-A)), domain.subdomain, measure, sing)
     end
 end
 
