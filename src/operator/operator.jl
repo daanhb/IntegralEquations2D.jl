@@ -11,12 +11,12 @@ BasisFunctions.name(op::IntegralOperator) = "Integral operator"
 
 
 # kernels typically have diagonal singularities.
-struct LogDiagonallySingular <: CurveSingularity end
-struct RadialDiagonallySingular <: CurveSingularity end
-struct UnknownDiagonallySingular <: CurveSingularity end
+struct LogSingularDiagonal <: CurveSingularity end
+struct RadialSingularDiagonal <: CurveSingularity end
+struct UnknownSingularDiagonal <: CurveSingularity end
 
 "Singularity of the kernel of the integral operator."
-singularity(op::IntegralOperator) = UnknownDiagonallySingular()
+singularity(op::IntegralOperator) = UnknownSingularDiagonal()
 
 
 

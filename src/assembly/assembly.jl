@@ -46,7 +46,7 @@ _issingular_coll(x, d::PeriodicInterval, δ) =
 nearsingular_threshold(ϕ_j) = nearsingular_threshold(support(ϕ_j...))
 # By default we choose twice the length of a single basis function
 nearsingular_threshold(d::AbstractInterval) = 2DomainSets.width(d)
-nearsingular_threshold(d::PeriodicInterval) = 2sum(map(DomainSets.width, elements(d)))
+nearsingular_threshold(d::PeriodicInterval) = 2sum(map(DomainSets.width, components(d)))
 # we don't know the radius of a general domain...
 nearsingular_threshold(d::Domain) = 0.01
 
@@ -61,7 +61,7 @@ function collocation_BEM_entry(x, ϕ_j, intop, quad, sing = singularity(intop))
 end
 
 collocation_singularity(x, sing) = sing
-collocation_singularity(x, sing::LogDiagonallySingular) = LogSingPoint(x)
+collocation_singularity(x, sing::LogSingularDiagonal) = LogSingPoint(x)
 
 singular_collocation_entry(quad, x, ϕ_j, intop, sing) =
     projectionintegral(singular(quad), y -> eval_kernel(intop, x, y),
@@ -124,7 +124,7 @@ function galerkin_BEM_entry(ϕ_i, ϕ_j, μ_projection, intop, quad, sing = singu
 end
 
 galerkin_singularity(sing) = sing
-galerkin_singularity(sing::LogDiagonallySingular) = DiagonallySingular()
+galerkin_singularity(sing::LogSingularDiagonal) = SingularDiagonal()
 
 singular_galerkin_BEM_entry(quad, sing, ϕ_i, μ_projection, ϕ_j, intop) =
     doubleprojection(singular(quad), (x,y) -> eval_kernel(intop, x, y),

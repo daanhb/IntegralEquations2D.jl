@@ -5,7 +5,7 @@
 
 export Kite
 "A kite-shaped domain in `ℝ^2`."
-struct Kite{T} <: EuclideanDomain{2,T}
+struct Kite{T} <: Domain{SVector{2,T}}
     a   ::  Int       # a parameter
 end
 
@@ -15,8 +15,6 @@ Kite(a::Integer) = Kite{float(typeof(a))}(a)
 
 indomain(x, ::Kite) = error("Don't know how to evaluate indomain for a kite.")
 
-
-using BasisFunctions: subeltype
 
 """
 Smooth parameterization of the kite-shaped domain, mapping from `[0,1)]` to the kite.
@@ -52,7 +50,7 @@ end
 
 export Ellipse
 "An ellipse-shaped domain"
-struct Ellipse{T} <: EuclideanDomain{2,T}
+struct Ellipse{T} <: Domain{SVector{2,T}}
     center  ::  SVector{2,T}        # center of the ellipse
     radius  ::  SVector{2,T}        # (radius1,radius2)
 

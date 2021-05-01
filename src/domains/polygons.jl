@@ -11,7 +11,7 @@ export Rectangle,
 # given in counter clockwise order.
 
 "An open line segment domain in `ℝ^2`."
-struct OpenLineSegment{T} <: EuclideanDomain{2,T}
+struct OpenLineSegment{T} <: Domain{SVector{2,T}}
     A   ::  SVector{2,T}       # Two endpoints
     B   ::  SVector{2,T}
 
@@ -63,7 +63,7 @@ end
 # A rectangle
 
 "A rectangular domain in `ℝ^2`."
-struct Rectangle{T} <: EuclideanDomain{2,T}
+struct Rectangle{T} <: Domain{SVector{2,T}}
     ll :: SVector{2,T}   # Two endpoints
     ur :: SVector{2,T}
 
@@ -126,7 +126,7 @@ end
 # Regular polygons
 
 "A regular polygon domain in `ℝ^2`."
-struct RegularPolygon{T} <: EuclideanDomain{2,T}
+struct RegularPolygon{T} <: Domain{SVector{2,T}}
     n      :: Int          # number of verticies
     center :: SVector{2,T} # center of polygon
     radius :: T            # the radius of the enclosing circle

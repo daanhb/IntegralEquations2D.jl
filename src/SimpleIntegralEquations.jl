@@ -18,8 +18,7 @@ import DomainSets:
     applymap,
     jacobian,
     gradient,
-    parameterization,
-    domain
+    parameterization
 
 import BasisFunctions:
     AbstractOperator,
@@ -29,13 +28,14 @@ import BasisFunctions:
     measure,
     integral,
     period,
-    matrix
+    matrix,
+    domain
 
 import DomainIntegrals:
     Singularity,
     NoSingularity,
     CurveSingularity,
-    DiagonallySingular,
+    SingularDiagonal,
     LogSingPoint
 
 export measure
