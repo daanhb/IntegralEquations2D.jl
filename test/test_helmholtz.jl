@@ -20,7 +20,7 @@ function test_helmholtz(T = Float64, N = 128)
     end
     basis_obstacle = BasisFunctions.ParamDict(basis, param, obstacle)
     coll_points = PeriodicEquispacedGrid(M, paramdomain)
-    coll_points_obstacle = map_grid(coll_points, param)
+    coll_points_obstacle = map_grid(param, coll_points)
     sampling_col = GridSampling(coll_points, Complex{T})
     sampling_col_obstacle = GridSampling(coll_points_obstacle, Complex{T})
     sampling_gal = ProjectionSampling(basis, measure(BIO))
