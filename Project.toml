@@ -1,7 +1,7 @@
 name = "SimpleIntegralEquations"
 uuid = "428acaf8-ea14-4ac2-ae6b-d202e96a132b"
 authors = ["Daan <daan.huybrechs@kuleuven.be>"]
-version = "0.2.2"
+version = "0.2.3"
 
 [deps]
 BasisFunctions = "4343a256-5453-507d-8aad-01a9d7189916"
@@ -21,14 +21,14 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
-BasisFunctions = "0.3.2"
+BasisFunctions = "0.3.3"
 CardinalBSplines = "0.2"
 CompactTranslatesDict = "0.2.3"
 DomainIntegrals = "0.3.1"
-DomainSets = "0.5.2"
+DomainSets = "0.5.7"
 FastGaussQuadrature = "0.4"
-FrameFun = "0.3.1"
-GridArrays = "0.1.10"
+FrameFun = "0.4.0"
+GridArrays = "0.1.11"
 HCubature = "1.4"
 IntervalSets = "0.5"
 QuadGK = "2.4"

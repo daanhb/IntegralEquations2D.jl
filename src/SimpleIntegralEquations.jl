@@ -17,7 +17,6 @@ import DomainSets:
     EuclideanDomain,
     applymap,
     jacobian,
-    gradient,
     parameterization
 
 import BasisFunctions:
