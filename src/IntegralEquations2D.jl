@@ -1,4 +1,4 @@
-module SimpleIntegralEquations
+module IntegralEquations2D
 
 using QuadGK, HCubature, FastGaussQuadrature,
     SpecialFunctions, StaticArrays,

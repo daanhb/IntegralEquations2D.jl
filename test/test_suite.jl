@@ -8,7 +8,7 @@ using BasisFunctions,
     FrameFun,
     StaticArrays
 
-using SimpleIntegralEquations
+using IntegralEquations2D
 
 include("test_qbf.jl")
 include("test_helmholtz.jl")
