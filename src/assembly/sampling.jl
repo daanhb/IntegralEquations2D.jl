@@ -31,9 +31,3 @@ function quadproject!(result, f, dict::Dictionary1d, quad::QuadratureStrategy)
 	end
 	result
 end
-
-BasisFunctions.hasstencil(op::QuadProjectionSampling) = true
-BasisFunctions.stencilarray(op::QuadProjectionSampling) = [BasisFunctions.modifiersymbol(op), "[", dictionary(op), "]"]
-
-BasisFunctions.modifiersymbol(op::QuadProjectionSampling) = BasisFunctions.PrettyPrintSymbol{:(𝓠⃰)}()
-BasisFunctions.name(::BasisFunctions.PrettyPrintSymbol{:(𝓠⃰)}) = "Quadrature-based analysis operator"
