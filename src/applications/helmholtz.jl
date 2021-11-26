@@ -52,16 +52,7 @@ end
 
 Helmholtz_SLP_2D(wavenumber::Integer) = Helmholtz_SLP_2D(float(wavenumber))
 
-BasisFunctions.name(kernel::Helmholtz_SLP_2D) = "2D Helmholtz single layer potential kernel"
-
-# Two arguments are given in the parameter domain
-(kernel::Helmholtz_SLP_2D)(t::Number, tau::Number, param) =
-    kernel(t, tau, param, applymap(param, t), applymap(param, tau))
 (kernel::Helmholtz_SLP_2D)(t, tau, param, x, y) = hh_slp(x, y, wavenumber(kernel))
-
-# Or: the first argument is a field point
-(kernel::Helmholtz_SLP_2D)(x::SVector{2}, tau::Number, param) =
-    kernel(x, tau, param, applymap(param, tau))
 (kernel::Helmholtz_SLP_2D)(x, tau, param, y) = hh_slp(x, y, wavenumber(kernel))
 
 is_symmetric(::Helmholtz_SLP_2D) = true
@@ -79,13 +70,8 @@ Helmholtz_DLP_2D(wavenumber::Integer) = Helmholtz_DLP_2D(float(wavenumber))
 
 BasisFunctions.name(kernel::Helmholtz_DLP_2D) = "2D Helmholtz double layer potential kernel"
 
-(kernel::Helmholtz_DLP_2D)(t::Number, tau::Number, param) =
-    kernel(t, tau, param, applymap(param, t), applymap(param, tau))
 (kernel::Helmholtz_DLP_2D)(t, tau, param, x, y) =
     hh_dlp_kernel(x, y, tau, wavenumber(kernel), param)
-
-(kernel::Helmholtz_DLP_2D)(x::SVector{2}, tau::Number, param) =
-    kernel(x, tau, param, applymap(param, tau))
 (kernel::Helmholtz_DLP_2D)(x, tau, param, y) =
     hh_dlp_kernel(x, y, tau, wavenumber(kernel), param)
 
@@ -93,3 +79,34 @@ is_symmetric(::Helmholtz_DLP_2D) = false
 
 # The kernel is continuous but its derivative is singular
 singularity(::Helmholtz_DLP_2D) = LogSingularDiagonal()
+
+
+
+## A few standard boundary conditions
+
+export make_boundary_condition_planewave,
+    make_parboundary_condition_planewave,
+    make_boundary_condition_pointsource,
+    make_parboundary_condition_pointsource
+
+boundary_condition_wave(x, wavenumber, direction, amplitude) =
+    amplitude * exp(im*wavenumber*dot(direction, x))
+
+"Return a field function that evaluates to a plane wave."
+make_boundary_condition_planewave(wavenumber, direction, amplitude = 1) =
+    (x,y) -> boundary_condition_wave(SVector(x,y), wavenumber, direction, amplitude)
+
+"Return a parametric boundary function that evaluates to a plane wave."
+make_parboundary_condition_planewave(param, wavenumber, direction, amplitude = 1) =
+    t -> boundary_condition_wave(applymap(param, t), wavenumber, direction, amplitude)
+
+boundary_condition_pointsource(x, center, wavenumber, amplitude) =
+    amplitude * besselh(0, 1, wavenumber*norm(x-center))
+
+"Return a field function that evaluates to a point source."
+make_boundary_condition_pointsource(center, wavenumber, amplitude = 1) =
+    (x,y) -> boundary_condition_pointsource(SVector(x,y), center, wavenumber, amplitude)
+
+"Return a parametric boundary function that evaluates to a point source."
+make_parboundary_condition_pointsource(param, center, wavenumber, amplitude = 1) =
+    t -> boundary_condition_pointsource(applymap(param, t), center, wavenumber, amplitude)

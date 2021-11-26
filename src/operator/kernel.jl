@@ -14,5 +14,6 @@ abstract type BoundaryKernel <: Kernel end
 # If two numbers are given, we assume they are in the parameter domain
 (kernel::BoundaryKernel)(t::Number, tau::Number, param) =
     kernel(t, tau, param, applymap(param, t), applymap(param, tau))
+# the first argument is a field point
 (kernel::BoundaryKernel)(x::SVector, tau::Number, param) =
     kernel(x, tau, param, applymap(param, tau))

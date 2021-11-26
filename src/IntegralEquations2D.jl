@@ -60,7 +60,6 @@ include("operator/kernel.jl")
 include("operator/operator.jl")
 include("operator/bie.jl")
 include("operator/bem.jl")
-include("operator/bndcondition.jl")
 
 include("assembly/assembly.jl")
 include("assembly/field.jl")
@@ -68,5 +67,6 @@ include("assembly/field.jl")
 include("solve/solve.jl")
 
 include("applications/helmholtz.jl")
+include("applications/laplace.jl")
 
 end # module
