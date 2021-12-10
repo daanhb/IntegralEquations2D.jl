@@ -1,5 +1,12 @@
-
-laplace_slp(x, y) = log(norm(x-y))
+"Evaluate the Laplace 2D single layer potential kernel"
+function laplace_slp(x, y)
+    T = eltype(x)
+    if norm(x-y) < eps(T)
+         return zero(Complex{T})
+    else
+        return log(norm(x-y))
+    end
+end
 
 export Laplace_SLP_2D
 "The single layer potential kernel of the Laplace equation."
