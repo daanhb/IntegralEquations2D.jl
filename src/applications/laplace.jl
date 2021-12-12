@@ -23,6 +23,40 @@ is_symmetric(::Laplace_SLP_2D) = true
 singularity(::Laplace_SLP_2D) = LogSingularDiagonal()
 
 
+"Evaluate the Laplace 2D double layer potential kernel"
+hh_dlp(x, y, wavenumber, normal_y, z = norm(x-y)) =
+    (normal_y' * (x-y)) / z^2
+
+
+"Evaluate the Laplace 2D double layer potential kernel"
+function laplace_dlp_kernel(x, y, tau, wavenumber, param)
+    z = norm(x-y)
+    if abs(z) > eps(eltype(x))
+        complex(laplace_dlp(x, y, wavenumber, normal(param, tau), z))
+    else
+        return zero(eltype(x))
+    end
+end
+
+export Laplace_DLP_2D
+"The double layer potential kernel of the Helmholtz equation in 2D."
+struct Laplace_DLP_2D{T} <: BoundaryKernel
+end
+
+Laplace_DLP_2D() = Laplace_DLP_2D{Float64}()
+
+BasisFunctions.name(kernel::Laplace_DLP_2D) = "2D Laplace double layer potential kernel"
+
+(kernel::Laplace_DLP_2D)(t, tau, param, x, y) =
+    laplace_dlp_kernel(x, y, tau, param)
+(kernel::Laplace_DLP_2D)(x, tau, param, y) =
+    laplace_dlp_kernel(x, y, tau, param)
+
+is_symmetric(::Laplace_DLP_2D) = false
+
+# The kernel is continuous but its derivative is singular
+singularity(::Laplace_DLP_2D) = LogSingularDiagonal()
+
 
 ## Some boundary conditions
 
