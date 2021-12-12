@@ -4,7 +4,7 @@ function laplace_slp(x, y)
     if norm(x-y) < eps(T)
          return zero(Complex{T})
     else
-        return log(norm(x-y))
+        return complex(log(norm(x-y)))
     end
 end
 
