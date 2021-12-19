@@ -32,7 +32,7 @@ hh_dlp(x, y, wavenumber, normal_y, z = norm(x-y)) =
 function laplace_dlp_kernel(x, y, tau, wavenumber, param)
     z = norm(x-y)
     if abs(z) > eps(eltype(x))
-        complex(laplace_dlp(x, y, wavenumber, normal(param, tau), z))
+        return complex(laplace_dlp(x, y, wavenumber, normal(param, tau), z))
     else
         return zero(eltype(x))
     end
