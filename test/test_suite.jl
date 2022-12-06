@@ -2,7 +2,7 @@
 using Test
 
 using BasisFunctions,
-    CompactTranslatesDict,
+    BasisTranslates, BasisTranslates.BSplines,
     DomainIntegrals,
     DomainSets,
     FrameFun,

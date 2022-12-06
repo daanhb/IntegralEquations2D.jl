@@ -4,7 +4,7 @@ f_qbftest(t) = 1/(2+cos(2*pi*t))^2
 function test_qbf()
     N = 32
     for degree in 1:4
-        basis = BSplineTranslatesBasis(N, degree, 0, 1)
+        basis = 2^(log2(N)/2)*PeriodicBSplines(N; degree)
         coef_direct = [DomainIntegrals.integral(t -> f_qbftest(t)*BasisFunctions.unsafe_eval_element(basis, i, t), FrameFun.support(basis, i)) for i in 1:length(basis)]
         for oversamplingfactor in 1:5
             A = IntegralEquations2D.qbf_operator(basis, degree, oversamplingfactor)
@@ -17,7 +17,7 @@ function test_qbf()
     N = 500
     degree = 11
     oversamplingfactor = 6
-    basis = BSplineTranslatesBasis(N, degree, big(0.), big(1.))
+    basis = 2^(log2(big(N))/2)*PeriodicBSplines{BigFloat}(N; degree=degree)
     A = IntegralEquations2D.qbf_operator(basis, degree, oversamplingfactor)
     coef = A * f_qbftest
     # c10 = integral(t -> f_qbftest(t)*BasisFunctions.unsafe_eval_element(basis, 10, t), FrameFun.support(basis, 10))

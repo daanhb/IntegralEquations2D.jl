@@ -1,12 +1,11 @@
 name = "IntegralEquations2D"
 uuid = "579fcb7a-e980-4e35-9e06-a3898a42c3b5"
 authors = ["Daan <daan.huybrechs@kuleuven.be>"]
-version = "0.3.2"
+version = "0.4"
 
 [deps]
 BasisFunctions = "4343a256-5453-507d-8aad-01a9d7189916"
-CardinalBSplines = "87d49508-7ad8-11e8-0eda-cb6920b58870"
-CompactTranslatesDict = "455b6770-8cd4-11e8-0457-dd6f5558b097"
+BasisTranslates = "6f49839c-b887-42fe-a304-07c35be75e0b"
 DomainIntegrals = "cc6bae93-f070-4015-88fd-838f9505a86c"
 DomainSets = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
 FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
@@ -21,20 +20,20 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
-BasisFunctions = "0.5"
-CardinalBSplines = "0.2"
-CompactTranslatesDict = "0.3"
-DomainIntegrals = "0.3.4"
-DomainSets = "0.5.11"
-FastGaussQuadrature = "0.4"
-FrameFun = "0.4.3"
-GridArrays = "0.1.12"
+BasisFunctions = "0.5.5"
+BasisTranslates = "0.1"
+DomainIntegrals = "0.4"
+DomainSets = "0.5.11,0.6.1"
+FastGaussQuadrature = "0.4,0.5"
+FrameFun = "0.4.4"
+GridArrays = "0.1.15"
 HCubature = "1.4"
 IntervalSets = "0.5,0.6,0.7"
 QuadGK = "2.4"
 RecipesBase = "1.0"
 SpecialFunctions = "1.0,2.0"
 StaticArrays = "1.0"
+julia = "1.6"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

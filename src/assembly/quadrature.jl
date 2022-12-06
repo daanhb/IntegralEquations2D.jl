@@ -3,8 +3,7 @@ export BEMQuadAdaptive,
     BEMQuadQBF_Adaptive,
     BEMQuadQBF_Graded
 
-using CompactTranslatesDict:
-    PeriodicInterval
+using BasisTranslates: PeriodicInterval
 
 using BasisFunctions:
     unsafe_eval_element,

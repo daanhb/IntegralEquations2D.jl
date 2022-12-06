@@ -8,11 +8,11 @@ function test_laplace(T = Float64, N = 128)
     SingleLayerPotential = Laplace_SLP_2D{T}()
     BIO = BoundaryIntegralOperator(SingleLayerPotential, obstacle, param)
     if paramdomain == Interval{:closed,:open,T}(0,1)
-        basis = BSplineTranslatesBasis{T}(N, splinedegree)
+        basis = 2^(log2(T(N))/2)*PeriodicBSplines{T}(N, degree = splinedegree)
     else
         a, b = extrema(paramdomain)
         m = mapto(a..b, 0..1)
-        splines = BSplineTranslatesBasis{T}(N, splinedegree)
+        splines = 2^(log2(T(N))/2)*PeriodicBSplines{T}(N, degree = splinedegree)
         basis = MappedDict(splines, m)
     end
     basis_obstacle = BasisFunctions.ParamDict(basis, param, obstacle)
