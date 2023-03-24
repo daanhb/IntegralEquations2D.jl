@@ -116,10 +116,6 @@ function projectionintegral(qs::QuadQBF, f, dict, idx, measure, sing, domain)
     integral(qs, integrand, domain, sing)*sqrt(length(dict))
 end
 
-# Teach DomainIntegrals how to evaluate on a PeriodicInterval
-DomainIntegrals.domain_splits(domain::PeriodicInterval) = true
-DomainIntegrals.domain_split(domain::PeriodicInterval) = components(domain)
-
 periodizer(A,B) = t -> A + mod(t-A,B-A)
 
 # Special treatment for QBF quadrature: don't split the domain, instead periodize the integrand
