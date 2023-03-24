@@ -5,7 +5,7 @@ using QuadGK, HCubature, FastGaussQuadrature,
     IntervalSets, DomainSets,
     DomainIntegrals,
     BasisFunctions, FrameFun, GridArrays,
-    BasisTranslates, BasisTranslates.BSplines,
+    BasisTranslates, BasisTranslates.BSplines, BasisTranslates.RefinableFunctions,
     LinearAlgebra,
     RecipesBase
 

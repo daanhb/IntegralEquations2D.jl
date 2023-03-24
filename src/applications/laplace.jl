@@ -1,11 +1,12 @@
 "Evaluate the Laplace 2D single layer potential kernel"
-function laplace_slp(x, y)
+function laplace_slp2(x, y)
     T = eltype(x)
-    if norm(x-y) < eps(T)
+    R = norm(x-y)
+    if R < eps(T)
          return zero(Complex{T})
     else
         Tpi = convert(T, pi)
-        return complex(1/(2*Tpi)*log(norm(x-y)))
+        return complex(1/(2*Tpi)*log(R))
     end
 end
 
@@ -17,8 +18,8 @@ end
 
 Laplace_SLP_2D() = Laplace_SLP_2D{Float64}()
 
-(kernel::Laplace_SLP_2D)(t, tau, param, x, y) = laplace_slp(x, y)
-(kernel::Laplace_SLP_2D)(x, tau, param, y) = laplace_slp(x, y)
+(kernel::Laplace_SLP_2D)(t, tau, param, x, y) = laplace_slp2(x, y)
+(kernel::Laplace_SLP_2D)(x, tau, param, y) = laplace_slp2(x, y)
 
 is_symmetric(::Laplace_SLP_2D) = true
 
@@ -31,9 +32,9 @@ laplace_dlp(x, y, normal_y, z = norm(x-y)) =
 "Evaluate the Laplace 2D double layer potential kernel"
 
 function laplace_dlp_kernel(x, y, tau, param)
-    z = norm(x-y)
-    if abs(z) > eps(eltype(x))
-        return Complex{Float64}(laplace_dlp(x, y, normal(param, tau), z))
+    R = norm(x-y)
+    if R > eps(eltype(x))
+        return Complex{Float64}(laplace_dlp(x, y, normal(param, tau), R))
     else
         return Complex{Float64}(0)
     end
