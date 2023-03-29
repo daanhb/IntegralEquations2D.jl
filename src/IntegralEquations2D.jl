@@ -49,12 +49,14 @@ include("domains/param.jl")
 include("domains/polygons.jl")
 include("domains/smooth.jl")
 include("domains/recipes.jl")
+include("domains/octaeder.jl")
 
 include("assembly/refinable.jl")
 include("assembly/quadrature.jl")
 include("assembly/sampling.jl")
 
 include("basis/splines.jl")
+include("basis/triangle.jl")
 
 include("operator/kernel.jl")
 include("operator/operator.jl")

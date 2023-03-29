@@ -19,7 +19,7 @@ function hh3_slp(x, y, wavenumber)
     if R < eps(T)
         zero(complex(T))
     else
-        exp(im*wavenumber*R) / R
+        exp(im*wavenumber*R) / (4*T(π)*R)
     end
 end
 
@@ -56,7 +56,7 @@ abstract type HelmholtzKernel <: BoundaryKernel end
 wavenumber(op::HelmholtzKernel) = op.wavenumber
 
 export Helmholtz_SLP_2D
-"The single layer potential kernel of the Helmholtz equation."
+"The single layer potential kernel of the 2D Helmholtz equation."
 struct Helmholtz_SLP_2D{T} <: HelmholtzKernel
     wavenumber  ::  T
 end
@@ -69,6 +69,14 @@ Helmholtz_SLP_2D(wavenumber::Integer) = Helmholtz_SLP_2D(float(wavenumber))
 is_symmetric(::Helmholtz_SLP_2D) = true
 
 singularity(::Helmholtz_SLP_2D) = LogSingularDiagonal()
+
+"The single layer potential kernel of the 3D Helmholtz equation."
+struct Helmholtz_SLP_3D{T} <: HelmholtzKernel
+    wavenumber  ::  T
+end
+Helmholtz_SLP_3D(wavenumber::Integer) = Helmholtz_SLP_3D(float(wavenumber))
+
+(kernel::Helmholtz_SLP_3D)(x, y) = hh3_slp(x, y, wavenumber(kernel))
 
 
 export Helmholtz_DLP_2D
