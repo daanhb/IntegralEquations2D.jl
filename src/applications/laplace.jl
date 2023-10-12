@@ -48,7 +48,7 @@ end
 
 Laplace_DLP_2D() = Laplace_DLP_2D{Float64}()
 
-BasisFunctions.name(kernel::Laplace_DLP_2D) = "2D Laplace double layer potential kernel"
+# BasisFunctions.name(kernel::Laplace_DLP_2D) = "2D Laplace double layer potential kernel"
 
 (kernel::Laplace_DLP_2D)(t, tau, param, x, y) =
     laplace_dlp_kernel(x, y, tau, param)
@@ -83,7 +83,7 @@ end
 
 Laplace_adjDLP_2D() = Laplace_adjDLP_2D{Float64}()
 
-BasisFunctions.name(kernel::Laplace_adjDLP_2D) = "Adjoint of 2D Laplace double layer potential kernel"
+# BasisFunctions.name(kernel::Laplace_adjDLP_2D) = "Adjoint of 2D Laplace double layer potential kernel"
 
 (kernel::Laplace_adjDLP_2D)(t, tau, param, x, y) =
     laplace_adjdlp_kernel(x, y, t, param)

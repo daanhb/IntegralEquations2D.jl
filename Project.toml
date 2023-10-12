@@ -1,7 +1,7 @@
 name = "IntegralEquations2D"
 uuid = "579fcb7a-e980-4e35-9e06-a3898a42c3b5"
 authors = ["Daan <daan.huybrechs@kuleuven.be>"]
-version = "0.4"
+version = "0.4.1"
 
 [deps]
 BasisFunctions = "4343a256-5453-507d-8aad-01a9d7189916"
@@ -20,15 +20,15 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
-BasisFunctions = "0.5.5"
-BasisTranslates = "0.1.1"
-DomainIntegrals = "0.4"
-DomainSets = "0.5.11,0.6.1"
-FastGaussQuadrature = "0.4,0.5"
-FrameFun = "0.4.4,0.5"
-GridArrays = "0.1.15"
+BasisFunctions = "0.6.3"
+BasisTranslates = "0.1.3"
+DomainIntegrals = "0.4.5"
+DomainSets = "0.7"
+FastGaussQuadrature = "0.5"
+FrameFun = "0.5.4"
+GridArrays = "0.2.1"
 HCubature = "1.4"
-IntervalSets = "0.5,0.6,0.7"
+IntervalSets = "0.7"
 QuadGK = "2.4"
 RecipesBase = "1.0"
 SpecialFunctions = "1.0,2.0"

@@ -30,7 +30,7 @@ collocation_BEM_entry(grid::AbstractGrid, i, ϕ_j, intop, quad) =
 
 "Does the collocation entry correspond to a (nearly) singular integral, up to the given distance threshold `δ`?"
 issingular_coll(sing, x, ϕ_j) =
-    issingular_coll(sing, x, ϕ_j, DomainSets.default_tolerance(support(ϕ_j...)))
+    issingular_coll(sing, x, ϕ_j, DomainSets.domain_tolerance(support(ϕ_j...)))
 
 issingular_coll(::NoSingularity, x, ϕ_j, δ) = false
 
@@ -81,7 +81,7 @@ regular_collocation_entry(quad, x, ϕ_j, intop) =
 
 "Does the Galerkin entry correspond to a (nearly) singular integral, up to the given distance threshold `δ`?"
 issingular_galerkin(sing, ϕ_i, ϕ_j) =
-    issingular_galerkin(sing, ϕ_i, ϕ_j, DomainSets.default_tolerance(support(ϕ_j...)))
+    issingular_galerkin(sing, ϕ_i, ϕ_j, DomainSets.domain_tolerance(support(ϕ_j...)))
 
 issingular_galerkin(::NoSingularity, ϕ_i, ϕ_j, δ) = false
 issingular_galerkin(sing, ϕ_i, ϕ_j, δ) =

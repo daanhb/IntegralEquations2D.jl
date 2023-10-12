@@ -11,7 +11,7 @@ end
 
 QuadProjectionSampling(dict::Dictionary, quad::QuadratureStrategy) = QuadProjectionSampling(dict, Span(dict), quad)
 
-BasisFunctions.name(op::QuadProjectionSampling) = "Projection by quadrature operator"
+# BasisFunctions.name(op::QuadProjectionSampling) = "Projection by quadrature operator"
 
 BasisFunctions.dictionary(op::QuadProjectionSampling) = op.dict
 

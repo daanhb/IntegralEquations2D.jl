@@ -18,7 +18,7 @@ struct BoundaryIntegralOperator{K,P,T} <: IntegralOperator
     param       ::  P
 end
 
-BasisFunctions.name(op::BoundaryIntegralOperator) = "Boundary integral operator"
+# BasisFunctions.name(op::BoundaryIntegralOperator) = "Boundary integral operator"
 
 kernel(op::BoundaryIntegralOperator) = op.kernel
 boundary(op::BoundaryIntegralOperator) = op.boundary

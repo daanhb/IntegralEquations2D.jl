@@ -7,7 +7,7 @@ integration with a kernel function and a certain integration measure.
 """
 abstract type IntegralOperator <: AbstractOperator end
 
-BasisFunctions.name(op::IntegralOperator) = "Integral operator"
+# BasisFunctions.name(op::IntegralOperator) = "Integral operator"
 
 
 # kernels typically have diagonal singularities.
@@ -32,7 +32,7 @@ integraloperator(op::SampledIntegralOperator) = op.intop
 Base.:*(op::GridSampling, intop::IntegralOperator) = SampledIntegralOperator(intop, op)
 Base.:*(op::ProjectionSampling, intop::IntegralOperator) = SampledIntegralOperator(intop, op)
 
-BasisFunctions.name(op::SampledIntegralOperator) = _name(op, op.intop, op.sampling)
+# BasisFunctions.name(op::SampledIntegralOperator) = _name(op, op.intop, op.sampling)
 
 _name(::SampledIntegralOperator, intop, ::GridSampling) = "Collocation integral operator"
 _name(::SampledIntegralOperator, intop, ::ProjectionSampling) = "Galerkin integral operator"

@@ -87,7 +87,7 @@ end
 
 Helmholtz_DLP_2D(wavenumber::Integer) = Helmholtz_DLP_2D(float(wavenumber))
 
-BasisFunctions.name(kernel::Helmholtz_DLP_2D) = "2D Helmholtz double layer potential kernel"
+# BasisFunctions.name(kernel::Helmholtz_DLP_2D) = "2D Helmholtz double layer potential kernel"
 
 (kernel::Helmholtz_DLP_2D)(t, tau, param, x, y) =
     hh2_dlp_kernel(x, y, tau, wavenumber(kernel), param)
